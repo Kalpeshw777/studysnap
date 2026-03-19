@@ -202,7 +202,7 @@
       <span style="font-size:0.72rem;color:var(--text-dim);font-family:'DM Mono',monospace;align-self:center">QUICK:</span>
       <div class="quick-chip" onclick="setTopic('Photosynthesis')">Photosynthesis</div>
       <div class="quick-chip" onclick="setTopic('Newton Laws of Motion')">Newton Laws</div>
-      <div class="quick-chip" onclick="setTopic('Ohm\'s Law')">Ohm's Law</div>
+      <div class="quick-chip" onclick="setTopic('Ohms Law')">Ohm's Law</div>
       <div class="quick-chip" onclick="setTopic('French Revolution')">French Revolution</div>
       <div class="quick-chip" onclick="setTopic('DNA Replication')">DNA Replication</div>
       <div class="quick-chip" onclick="setTopic('Python Basics')">Python Basics</div>
@@ -285,21 +285,21 @@
   <div class="modal">
     <div class="modal-header">
       <h2>⚡ Upgrade to Pro</h2>
-      <p>Select a plan and pay to unlock unlimited access</p>
+      <p>Select a plan and pay to unlock access</p>
     </div>
     <div class="pricing-cards">
       <div class="pricing-card" id="card-monthly" onclick="selectPlan('monthly')">
         <div class="plan-name">Monthly</div>
         <div class="plan-price">₹99 <small>/mo</small></div>
         <ul class="plan-features">
-          <li>Unlimited topics</li><li>25 Q&A per topic</li><li>Deep dive notes</li><li>PDF export</li><li>MCQ format</li>
+          <li>25 topics per day</li><li>25 Q&A per topic</li><li>Deep dive notes</li><li>PDF export</li><li>MCQ format</li>
         </ul>
       </div>
       <div class="pricing-card recommended selected" id="card-annual" onclick="selectPlan('annual')">
         <div class="plan-name">Annual</div>
         <div class="plan-price">₹699 <small>/yr</small></div>
         <ul class="plan-features">
-          <li>Everything in Monthly</li><li>Save 40%</li><li>Priority AI speed</li><li>Offline mode</li><li>Study analytics</li>
+          <li>Unlimited topics</li><li>Save 40%</li><li>Priority AI speed</li><li>Offline mode</li><li>Study analytics</li>
         </ul>
       </div>
     </div>
@@ -313,7 +313,7 @@
 <script>
   let isPro = false;
   let usedToday = 0;
-  const FREE_LIMIT = 3;
+  let FREE_LIMIT = 3;
   let currentCards = [];
   let currentCardIdx = 0;
   let cardFlipped = false;
@@ -378,13 +378,15 @@
 
   function activatePro() {
     isPro = true;
+    const isAnnual = selectedPlan === 'annual';
+    FREE_LIMIT = isAnnual ? 999999 : 25;
     document.getElementById('planBadge').className = 'plan-badge pro';
-    document.getElementById('planBadge').innerHTML = '<div class="plan-dot"></div> PRO PLAN';
-    document.querySelector('.usage-count').innerHTML = '<span style="color:var(--gold)">∞</span> unlimited';
+    document.getElementById('planBadge').innerHTML = '<div class="plan-dot"></div> ' + (isAnnual ? 'PRO ANNUAL' : 'PRO MONTHLY');
+    document.querySelector('.usage-count').innerHTML = '<span style="color:var(--gold)">' + (isAnnual ? '∞' : '25') + '</span> ' + (isAnnual ? 'unlimited' : 'per day');
     const gate = document.getElementById('proGate');
-    if (gate) gate.innerHTML = '<h3>✓ Pro Active</h3><p style="color:var(--accent2)">Unlimited access unlocked!</p>';
+    if (gate) gate.innerHTML = '<h3>✓ ' + (isAnnual ? 'Pro Annual' : 'Pro Monthly') + ' Active</h3><p style="color:var(--accent2)">' + (isAnnual ? 'Unlimited access unlocked!' : '25 topics per day unlocked!') + '</p>';
     closeModal();
-    showToast('🎉 Payment successful! Welcome to Pro!');
+    showToast('🎉 Payment successful! Welcome to ' + (isAnnual ? 'Pro Annual' : 'Pro Monthly') + '!');
   }
 
   async function generate() {
