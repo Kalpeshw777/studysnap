@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const crypto = require("crypto");
+const { MongoClient } = require("mongodb");
+const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
 app.use(cors());
@@ -12,10 +14,93 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+const MONGODB_URI = process.env.MONGODB_URI;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
 
-app.post("/api/generate", async (req, res) => {
+let db;
+MongoClient.connect(MONGODB_URI).then(client => {
+  db = client.db("studysnap");
+  console.log("MongoDB connected");
+}).catch(err => console.error("MongoDB error:", err.message));
+
+function createToken(payload) {
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const body = Buffer.from(JSON.stringify({ ...payload, iat: Date.now() })).toString("base64url");
+  const sig = crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest("base64url");
+  return `${header}.${body}.${sig}`;
+}
+
+function verifyToken(token) {
+  try {
+    const [header, body, sig] = token.split(".");
+    const expected = crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest("base64url");
+    if (sig !== expected) return null;
+    return JSON.parse(Buffer.from(body, "base64url").toString());
+  } catch { return null; }
+}
+
+function authMiddleware(req, res, next) {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!token) return res.status(401).json({ error: "No token" });
+  const payload = verifyToken(token);
+  if (!payload) return res.status(401).json({ error: "Invalid token" });
+  req.user = payload;
+  next();
+}
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+app.post("/api/auth/google", async (req, res) => {
+  const { credential } = req.body;
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+    const { email, name, picture, sub: googleId } = ticket.getPayload();
+    const users = db.collection("users");
+    await users.updateOne(
+      { email },
+      { $set: { email, name, picture, googleId, updatedAt: new Date() }, $setOnInsert: { createdAt: new Date(), plan: "free", usageToday: 0, lastUsageDate: null } },
+      { upsert: true }
+    );
+    const user = await users.findOne({ email });
+    const token = createToken({ email, name, picture, plan: user.plan });
+    res.json({ token, user: { email, name, picture, plan: user.plan } });
+  } catch (err) {
+    console.error("Google auth error:", err.message);
+    res.status(401).json({ error: "Invalid Google token" });
+  }
+});
+
+app.get("/api/user/status", authMiddleware, async (req, res) => {
+  try {
+    const user = await db.collection("users").findOne({ email: req.user.email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const today = new Date().toDateString();
+    if (user.lastUsageDate !== today) {
+      await db.collection("users").updateOne({ email: req.user.email }, { $set: { usageToday: 0, lastUsageDate: today } });
+      user.usageToday = 0;
+    }
+    res.json({ plan: user.plan, usageToday: user.usageToday, email: user.email, name: user.name, picture: user.picture });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to get user status" });
+  }
+});
+
+app.post("/api/generate", authMiddleware, async (req, res) => {
   const { topic, level, depth } = req.body;
   if (!topic) return res.status(400).json({ error: "Topic is required" });
+  const users = db.collection("users");
+  const user = await users.findOne({ email: req.user.email });
+  const today = new Date().toDateString();
+  if (user.lastUsageDate !== today) {
+    await users.updateOne({ email: req.user.email }, { $set: { usageToday: 0, lastUsageDate: today } });
+    user.usageToday = 0;
+  }
+  const limit = user.plan === "annual" ? 999999 : user.plan === "monthly" ? 25 : 3;
+  if (user.usageToday >= limit) {
+    return res.status(403).json({ error: user.plan === "free" ? "Free limit reached. Upgrade to Pro!" : "Daily limit reached." });
+  }
+  await users.updateOne({ email: req.user.email }, { $inc: { usageToday: 1 }, $set: { lastUsageDate: today } });
   const numPoints = depth === "quick" ? 5 : depth === "deep" ? 15 : 10;
   const prompt = `You are an expert study assistant and educator. Generate accurate, detailed study notes for the topic: "${topic}" at ${level || "intermediate"} level.
 You MUST respond with ONLY valid JSON — no markdown fences, no explanation, no extra text before or after.
@@ -38,16 +123,13 @@ Rules: ${numPoints} points, 5 qa items, diff = easy/medium/hard, empty formulas 
   }
 });
 
-app.post("/api/create-order", async (req, res) => {
+app.post("/api/create-order", authMiddleware, async (req, res) => {
   const { plan } = req.body;
   const amount = plan === "annual" ? 69900 : 9900;
   try {
     const response = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic " + Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString("base64")
-      },
+      headers: { "Content-Type": "application/json", "Authorization": "Basic " + Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString("base64") },
       body: JSON.stringify({ amount, currency: "INR", receipt: `receipt_${Date.now()}` })
     });
     const order = await response.json();
@@ -58,17 +140,19 @@ app.post("/api/create-order", async (req, res) => {
   }
 });
 
-app.post("/api/verify-payment", (req, res) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-  const expectedSignature = crypto
-    .createHmac("sha256", RAZORPAY_KEY_SECRET)
-    .update(razorpay_order_id + "|" + razorpay_payment_id)
-    .digest("hex");
-  if (expectedSignature === razorpay_signature) {
-    res.json({ success: true, paymentId: razorpay_payment_id });
-  } else {
-    res.status(400).json({ success: false, error: "Payment verification failed" });
+app.post("/api/verify-payment", authMiddleware, async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan } = req.body;
+  const expectedSignature = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET).update(razorpay_order_id + "|" + razorpay_payment_id).digest("hex");
+  if (expectedSignature !== razorpay_signature) {
+    return res.status(400).json({ success: false, error: "Payment verification failed" });
   }
+  await db.collection("users").updateOne(
+    { email: req.user.email },
+    { $set: { plan, paymentId: razorpay_payment_id, paidAt: new Date() } }
+  );
+  const user = await db.collection("users").findOne({ email: req.user.email });
+  const newToken = createToken({ email: user.email, name: user.name, picture: user.picture, plan });
+  res.json({ success: true, token: newToken, plan });
 });
 
 const PORT = process.env.PORT || 3000;
