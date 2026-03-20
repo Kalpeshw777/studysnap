@@ -51,7 +51,6 @@ function authMiddleware(req, res, next) {
 
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-// ── GOOGLE AUTH ───────────────────────────────────────────────────────────────
 app.post("/api/auth/google", async (req, res) => {
   const { credential } = req.body;
   try {
@@ -72,7 +71,6 @@ app.post("/api/auth/google", async (req, res) => {
   }
 });
 
-// ── USER STATUS ───────────────────────────────────────────────────────────────
 app.get("/api/user/status", authMiddleware, async (req, res) => {
   try {
     const user = await db.collection("users").findOne({ email: req.user.email });
@@ -83,12 +81,10 @@ app.get("/api/user/status", authMiddleware, async (req, res) => {
   }
 });
 
-// ── GENERATE NOTES — NO LIMITS ────────────────────────────────────────────────
 app.post("/api/generate", authMiddleware, async (req, res) => {
   const { topic, level, depth } = req.body;
   if (!topic) return res.status(400).json({ error: "Topic is required" });
 
-  // Track usage in DB (no limits — just analytics)
   await db.collection("users").updateOne(
     { email: req.user.email },
     { $inc: { totalGenerations: 1 }, $set: { lastUsed: new Date() } }
@@ -107,17 +103,26 @@ Rules: ${numPoints} points, 5 qa items, diff = easy/medium/hard, empty formulas 
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
       body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }], temperature: 0.3, max_tokens: 2048 })
     });
+
     const data = await response.json();
-    if (!response.ok) return res.status(500).json({ error: data.error?.message || "Groq API error" });
+
+    if (!response.ok) {
+      const errMsg = data.error?.message || "";
+      if (errMsg.includes("rate_limit") || response.status === 429) {
+        return res.status(429).json({ error: "⚡ StudySnap is experiencing high traffic! Please try again in a few minutes." });
+      }
+      return res.status(500).json({ error: errMsg || "Groq API error" });
+    }
+
     const raw = data.choices?.[0]?.message?.content || "";
     const clean = raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
     res.json(JSON.parse(clean));
   } catch (err) {
+    console.error("Error:", err.message);
     res.status(500).json({ error: "Failed to generate notes. Please try again." });
   }
 });
 
-// ── RAZORPAY: Create Donation Order ──────────────────────────────────────────
 app.post("/api/create-order", authMiddleware, async (req, res) => {
   const { amount } = req.body;
   const amountInPaise = (amount || 99) * 100;
@@ -135,14 +140,12 @@ app.post("/api/create-order", authMiddleware, async (req, res) => {
   }
 });
 
-// ── RAZORPAY: Verify Donation ─────────────────────────────────────────────────
 app.post("/api/verify-payment", authMiddleware, async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   const expectedSignature = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET).update(razorpay_order_id + "|" + razorpay_payment_id).digest("hex");
   if (expectedSignature !== razorpay_signature) {
     return res.status(400).json({ success: false, error: "Verification failed" });
   }
-  // Mark user as supporter
   await db.collection("users").updateOne(
     { email: req.user.email },
     { $set: { supporter: true, supportedAt: new Date(), lastPaymentId: razorpay_payment_id } }
