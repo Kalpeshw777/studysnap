@@ -234,16 +234,69 @@
   .install-btn { background: linear-gradient(135deg, var(--accent), #5a3fcc); border: none; border-radius: 16px; padding: 6px 14px; color: white; font-size: 0.72rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .install-dismiss { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1rem; padding: 0 4px; }
 
+
+  /* MCQ */
+  .mcq-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .mcq-question { font-size: 0.88rem; font-weight: 600; margin-bottom: 12px; line-height: 1.5; }
+  .mcq-question .q-num { display: inline-block; background: linear-gradient(135deg, var(--accent), #5a3fcc); color: white; border-radius: 6px; padding: 1px 8px; font-size: 0.65rem; font-family: 'DM Mono', monospace; margin-right: 7px; vertical-align: middle; }
+  .mcq-options { display: flex; flex-direction: column; gap: 7px; }
+  .mcq-option { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; cursor: pointer; font-size: 0.83rem; transition: all 0.15s; display: flex; align-items: center; gap: 9px; }
+  .mcq-option:hover:not(.disabled) { border-color: var(--accent); background: rgba(124,92,252,0.08); }
+  .mcq-option.correct { border-color: var(--accent2); background: rgba(0,229,191,0.1); color: var(--accent2); }
+  .mcq-option.wrong { border-color: var(--accent3); background: rgba(255,107,107,0.08); color: var(--accent3); }
+  .mcq-option.disabled { cursor: default; }
+  .mcq-opt-label { width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: 'DM Mono', monospace; color: var(--text-muted); flex-shrink: 0; font-weight: 700; }
+  .mcq-option.correct .mcq-opt-label { background: var(--accent2); border-color: var(--accent2); color: #0a0a0f; }
+  .mcq-option.wrong .mcq-opt-label { background: var(--accent3); border-color: var(--accent3); color: white; }
+  .mcq-explanation { font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; padding: 8px 12px; background: var(--surface2); border-radius: 8px; display: none; line-height: 1.5; border-left: 3px solid var(--accent2); }
+  .mcq-explanation.show { display: block; }
+  .mcq-score { background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(0,229,191,0.06)); border: 1px solid rgba(124,92,252,0.2); border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .mcq-score-text { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; }
+  .mcq-score-num { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+  .mcq-reset-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.15s; }
+  .mcq-reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
   @media (max-width: 600px) {
     .container { padding: 0 12px; }
     .input-row { flex-direction: column; }
     .generate-btn { min-width: unset; width: 100%; }
-    .free-plan-badge { display: none; }
+    .free-plan-badge { display: none !important; }
+    .theme-btn { display: none !important; }
+    .support-btn { padding: 6px 10px; font-size: 0.72rem; }
     .header-right { gap: 5px; }
-    .support-card { flex-direction: column; text-align: center; }
-    .hero { padding: 24px 0 18px; }
-    .toast { left: 12px; right: 12px; max-width: unset; }
-    .support-btn { padding: 7px 10px; font-size: 0.7rem; }
+    .free-banner { flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 12px; }
+    .free-banner-text { font-size: 0.74rem; line-height: 1.4; }
+    .free-banner-btn { font-size: 0.68rem; padding: 4px 10px; }
+    .support-card { flex-direction: column; text-align: center; padding: 14px; }
+    .hero { padding: 20px 0 14px; }
+    .hero h1 { font-size: 1.65rem !important; letter-spacing: -0.5px; line-height: 1.15; }
+    .hero p { font-size: 0.85rem; padding: 0 4px; }
+    .hero-tag { font-size: 0.65rem; padding: 4px 10px; }
+    .toast { left: 12px; right: 12px; max-width: unset; bottom: 12px; }
+    .donation-options { gap: 6px; }
+    .topic-input { font-size: 0.88rem; padding: 10px 12px; }
+    .options-row { gap: 6px; }
+    .select-field { font-size: 0.75rem; min-width: 0; flex: 1; padding: 7px 8px; }
+    .quick-topics { gap: 5px; }
+    .quick-chip { font-size: 0.66rem; padding: 3px 8px; }
+    .results-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .action-btns { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+    .action-btn { font-size: 0.72rem; padding: 5px 10px; }
+    .tabs { gap: 2px; }
+    .tab { font-size: 0.72rem; padding: 7px 2px; }
+    .stat-val { font-size: 1.2rem; }
+    .stat-label { font-size: 0.6rem; }
+    .install-banner { flex-direction: column; align-items: flex-start; padding: 10px 12px; }
+    .profile-dropdown { min-width: 180px; right: -8px; }
+    .notes-body { padding: 14px 12px; }
+    .definition-box { padding: 10px 12px; font-size: 0.83rem; }
+    .key-point { font-size: 0.84rem; }
+    .qa-question { padding: 10px 12px; font-size: 0.82rem; }
+    .qa-answer { padding: 10px 12px 12px 40px; font-size: 0.8rem; }
+    .card-question { font-size: 0.9rem; }
+    .card-answer { font-size: 0.8rem; }
+    .support-card-text h4 { font-size: 0.9rem; }
+    .support-card-text p { font-size: 0.75rem; }
   }
 </style>
 </head>
@@ -388,6 +441,7 @@
         <button class="tab active" onclick="switchTab('notes')">📝 Notes</button>
         <button class="tab" onclick="switchTab('qa')">❓ Q&A</button>
         <button class="tab" onclick="switchTab('flash')">🃏 Cards</button>
+        <button class="tab" onclick="switchTab('mcq')">🎯 MCQ</button>
       </div>
       <div class="tab-content active" id="tab-notes">
         <div class="notes-card">
@@ -424,6 +478,10 @@
           <button class="card-ctrl-btn know" onclick="nextCard()">Know it ✓</button>
         </div>
       </div>
+      <div class="tab-content" id="tab-mcq">
+        <div id="mcqContainer"></div>
+      </div>
+
       <div class="support-card">
         <div class="support-card-text">
           <h4>☕ Enjoying StudySnap?</h4>
@@ -791,12 +849,79 @@
     currentCardIdx = 0; cardFlipped = false;
     updateCard();
     document.getElementById('results').classList.add('active');
+    renderMCQ(data.qa || []);
     switchTab('notes');
+  }
+
+  let mcqCorrect = 0;
+  const mcqOptionsCache = {};
+
+  function renderMCQ(qaItems) {
+    mcqCorrect = 0;
+    Object.keys(mcqOptionsCache).forEach(k => delete mcqOptionsCache[k]);
+    const container = document.getElementById('mcqContainer');
+    if (!qaItems.length) { container.innerHTML = '<div class="history-empty">No MCQs available.</div>'; return; }
+
+    // Pre-generate and cache all options
+    const allAnswers = qaItems.map(q => q.a);
+    qaItems.forEach((item, i) => {
+      const others = allAnswers.filter((a, idx) => idx !== i);
+      const distractors = others.sort(() => Math.random() - 0.5).slice(0, 3);
+      const opts = [...distractors, item.a].sort(() => Math.random() - 0.5);
+      mcqOptionsCache[i] = { opts, correctIdx: opts.indexOf(item.a) };
+    });
+
+    const scoreHtml = `<div class="mcq-score" id="mcqScore">
+      <div>
+        <div style="font-size:0.72rem;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:2px">YOUR SCORE</div>
+        <div class="mcq-score-num"><span id="mcqCorrectCount">0</span> / ${qaItems.length}</div>
+      </div>
+      <button class="mcq-reset-btn" onclick="renderMCQ(currentNotes.qa)">🔄 Retry</button>
+    </div>`;
+
+    const mcqHtml = qaItems.map((item, i) => {
+      const { opts } = mcqOptionsCache[i];
+      return `<div class="mcq-item">
+        <div class="mcq-question"><span class="q-num">Q${i+1}</span>${item.q}<span class="difficulty-badge diff-${item.diff}" style="margin-left:8px">${item.diff}</span></div>
+        <div class="mcq-options" id="mcq-opts-${i}">
+          ${opts.map((opt, j) => `
+            <div class="mcq-option" onclick="answerMCQ(${i}, ${j})" id="mcq-opt-${i}-${j}">
+              <div class="mcq-opt-label">${['A','B','C','D'][j]}</div>
+              <span>${opt}</span>
+            </div>`).join('')}
+        </div>
+        <div class="mcq-explanation" id="mcq-exp-${i}">✅ <strong>Correct:</strong> ${item.a}</div>
+      </div>`;
+    }).join('');
+
+    container.innerHTML = scoreHtml + mcqHtml;
+  }
+
+  function answerMCQ(qIdx, chosenIdx) {
+    const cache = mcqOptionsCache[qIdx];
+    if (!cache) return;
+    const { correctIdx } = cache;
+    // Disable all options for this question
+    for (let j = 0; j < 4; j++) {
+      const el = document.getElementById(`mcq-opt-${qIdx}-${j}`);
+      if (el) { el.classList.add('disabled'); el.onclick = null; }
+    }
+    const chosenEl = document.getElementById(`mcq-opt-${qIdx}-${chosenIdx}`);
+    const correctEl = document.getElementById(`mcq-opt-${qIdx}-${correctIdx}`);
+    if (chosenIdx === correctIdx) {
+      chosenEl.classList.add('correct');
+      mcqCorrect++;
+      document.getElementById('mcqCorrectCount').textContent = mcqCorrect;
+    } else {
+      chosenEl.classList.add('wrong');
+      if (correctEl) correctEl.classList.add('correct');
+    }
+    document.getElementById(`mcq-exp-${qIdx}`).classList.add('show');
   }
 
   function toggleQA(el) { el.classList.toggle('open'); }
   function switchTab(name) {
-    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['notes','qa','flash'][i] === name));
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['notes','qa','flash','mcq'][i] === name));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.getElementById('tab-'+name).classList.add('active');
   }
