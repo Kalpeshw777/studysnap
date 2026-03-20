@@ -12,7 +12,8 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || e.request.url.includes('/api/')) return;
+  if (e.request.method !== 'GET') return;
+  if (e.request.url.includes('/api/')) return;
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
 
@@ -25,7 +26,7 @@ self.addEventListener('push', e => {
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       tag: 'studysnap-reminder',
-      data: { url: data.url || '/' },
+      data: { url: '/' },
       actions: [
         { action: 'study', title: '📖 Study Now' },
         { action: 'dismiss', title: 'Later' }
@@ -37,5 +38,5 @@ self.addEventListener('push', e => {
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   if (e.action === 'dismiss') return;
-  e.waitUntil(clients.openWindow(e.notification.data?.url || '/'));
+  e.waitUntil(clients.openWindow('/'));
 });
