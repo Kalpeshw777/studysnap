@@ -319,6 +319,189 @@
     .mcq-question { font-size: 0.83rem; }
     .mcq-option { font-size: 0.8rem; padding: 8px 10px; }
   }
+
+  /* ── BUTTON ANIMATIONS ─────────────────────────────────────────────────── */
+  @keyframes ripple {
+    0% { transform: scale(0); opacity: 0.6; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  @keyframes btnPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.93); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0); }
+    50% { box-shadow: 0 0 0 6px rgba(124,92,252,0.15); }
+  }
+  @keyframes floatBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  @keyframes successPop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.08); }
+    60% { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+
+  /* Generate Button — shimmer + glow pulse */
+  .generate-btn {
+    position: relative;
+    overflow: hidden;
+    background-size: 200% auto;
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+  .generate-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%; height: 200%;
+    background: rgba(255,255,255,0.18);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+  .generate-btn:hover::after { left: 130%; }
+  .generate-btn:active { animation: btnPop 0.25s ease; }
+
+  /* Support Button — float bounce on hover */
+  .support-btn {
+    position: relative;
+    overflow: hidden;
+  }
+  .support-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%; height: 200%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: left 0.4s ease;
+  }
+  .support-btn:hover { animation: floatBounce 0.5s ease; }
+  .support-btn:hover::after { left: 130%; }
+  .support-btn:active { transform: scale(0.95); }
+
+  /* Quick chips — spring pop */
+  .quick-chip {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .quick-chip:active { transform: scale(0.88); }
+
+  /* Action buttons — smooth press */
+  .action-btn {
+    transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .action-btn:active { transform: scale(0.92); }
+
+  /* Tab buttons — smooth slide */
+  .tab {
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .tab:active { transform: scale(0.94); }
+
+  /* Donate button — shimmer */
+  .donate-btn {
+    position: relative;
+    overflow: hidden;
+    background-size: 200% auto;
+  }
+  .donate-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%; height: 200%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+  .donate-btn:hover::after { left: 130%; }
+  .donate-btn:active { transform: scale(0.96) !important; }
+
+  /* Support card button */
+  .support-card-btn {
+    position: relative;
+    overflow: hidden;
+  }
+  .support-card-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%; height: 200%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: left 0.4s ease;
+  }
+  .support-card-btn:hover::after { left: 130%; }
+  .support-card-btn:active { transform: scale(0.95); }
+
+  /* Logout + theme btns */
+  .logout-btn, .theme-btn {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .logout-btn:active, .theme-btn:active { transform: scale(0.88); }
+
+  /* Flashcard controls */
+  .card-ctrl-btn {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .card-ctrl-btn:active { transform: scale(0.9); }
+
+  /* MCQ options — spring select */
+  .mcq-option {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .mcq-option:not(.disabled):active { transform: scale(0.97); }
+
+  /* Dropdown items */
+  .dropdown-item {
+    transition: all 0.15s ease;
+  }
+  .dropdown-item:active { transform: translateX(3px); }
+
+  /* Login Google btn wrapper bounce */
+  .google-btn-wrap {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .google-btn-wrap:active { transform: scale(0.96); }
+
+  /* Free banner btn */
+  .free-banner-btn {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .free-banner-btn:hover { background: rgba(0,229,191,0.2); transform: scale(1.04); }
+  .free-banner-btn:active { transform: scale(0.94); }
+
+  /* History reload btn */
+  .history-reload {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .history-reload:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
+  .history-reload:active { transform: scale(0.93); }
+
+  /* History item hover */
+  .history-item {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .history-item:hover { transform: translateX(3px); }
+
+  /* MCQ reset btn */
+  .mcq-reset-btn {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .mcq-reset-btn:active { transform: scale(0.9) rotate(-10deg); }
+
+  /* Upgrade / install btn */
+  .install-btn {
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .install-btn:hover { transform: scale(1.05); }
+  .install-btn:active { transform: scale(0.94); }
+
 </style>
 </head>
 <body>
