@@ -151,6 +151,113 @@ app.post("/api/verify-payment", authMiddleware, async (req, res) => {
 });
 
 
+
+// ── STUDY ROOMS ───────────────────────────────────────────────────────────────
+// In-memory rooms store (fast, no DB needed for ephemeral rooms)
+const rooms = new Map(); // code -> { members, clients, createdAt }
+
+function generateCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+function getOrCreateRoom(code) {
+  if (!rooms.has(code)) {
+    rooms.set(code, { members: {}, clients: new Set(), createdAt: Date.now() });
+  }
+  return rooms.get(code);
+}
+
+function broadcastToRoom(code, data, excludeEmail = null) {
+  const room = rooms.get(code);
+  if (!room) return;
+  const msg = 'data: ' + JSON.stringify(data) + '\n\n';
+  room.clients.forEach(client => {
+    if (excludeEmail && client.email === excludeEmail) return;
+    try { client.res.write(msg); } catch(e) {}
+  });
+}
+
+// Clean up old rooms every 2 hours
+setInterval(() => {
+  const now = Date.now();
+  rooms.forEach((room, code) => {
+    if (now - room.createdAt > 7200000) rooms.delete(code);
+  });
+}, 3600000);
+
+// Create room
+app.post("/api/room/create", authMiddleware, (req, res) => {
+  let code = generateCode();
+  while (rooms.has(code)) code = generateCode();
+  getOrCreateRoom(code);
+  res.json({ code });
+});
+
+// Join room
+app.post("/api/room/join", authMiddleware, (req, res) => {
+  const { code, name, picture } = req.body;
+  const room = getOrCreateRoom(code);
+  room.members[req.user.email] = { email: req.user.email, name: name || req.user.name, picture: picture || '' };
+  broadcastToRoom(code, { type: 'members', members: room.members });
+  res.json({ success: true });
+});
+
+// Leave room
+app.post("/api/room/leave", authMiddleware, (req, res) => {
+  const { code } = req.body;
+  const room = rooms.get(code);
+  if (room) {
+    delete room.members[req.user.email];
+    room.clients.forEach(c => { if (c.email === req.user.email) room.clients.delete(c); });
+    broadcastToRoom(code, { type: 'members', members: room.members });
+    if (Object.keys(room.members).length === 0) rooms.delete(code);
+  }
+  res.json({ success: true });
+});
+
+// SSE events stream
+app.get("/api/room/events", (req, res) => {
+  const { code, token } = req.query;
+  if (!code || !token) return res.status(400).end();
+  
+  // Verify token
+  const payload = verifyToken(token);
+  if (!payload) return res.status(401).end();
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.flushHeaders();
+
+  const room = getOrCreateRoom(code);
+  const client = { email: payload.email, res };
+  room.clients.add(client);
+
+  // Send current members immediately
+  res.write('data: ' + JSON.stringify({ type: 'members', members: room.members }) + '\n\n');
+
+  // Heartbeat every 25s
+  const heartbeat = setInterval(() => {
+    try { res.write('data: ' + JSON.stringify({ type: 'ping' }) + '\n\n'); }
+    catch(e) { clearInterval(heartbeat); }
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    room.clients.delete(client);
+  });
+});
+
+// Broadcast event to room
+app.post("/api/room/broadcast", authMiddleware, (req, res) => {
+  const { code, type, ...data } = req.body;
+  const room = rooms.get(code);
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  broadcastToRoom(code, { type, ...data });
+  res.json({ success: true });
+});
+
 // ── AI DOUBT SOLVER ───────────────────────────────────────────────────────────
 app.post("/api/doubt", authMiddleware, async (req, res) => {
   const { context, question } = req.body;
