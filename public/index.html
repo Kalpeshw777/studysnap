@@ -801,6 +801,291 @@
     .doubt-send-btn { padding: 9px 12px; font-size: 0.78rem; }
   }
 
+
+  /* ── STUDY ROOMS ─────────────────────────────────────────────────────────── */
+
+  /* Room button in dropdown */
+  .dropdown-item.rooms-item { color: var(--accent2); }
+  .dropdown-item.rooms-item:hover { background: rgba(0,229,191,0.08); color: var(--accent2); }
+
+  /* Full screen room overlay */
+  .room-overlay {
+    position: fixed; inset: 0; background: var(--bg);
+    z-index: 600; display: none; flex-direction: column;
+    animation: fadeIn 0.3s ease;
+  }
+  .room-overlay.active { display: flex; }
+
+  /* Room lobby (before joining) */
+  .room-lobby {
+    flex: 1; display: flex; align-items: center;
+    justify-content: center; padding: 20px;
+  }
+  .room-lobby-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 36px 32px;
+    max-width: 440px; width: 100%; text-align: center;
+    box-shadow: var(--glow);
+    animation: fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .room-lobby-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--accent2), #00b89c);
+    border-radius: 20px; font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    animation: roomIconPulse 2s ease-in-out infinite;
+  }
+  @keyframes roomIconPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,229,191,0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(0,229,191,0); }
+  }
+  .room-lobby-title {
+    font-family: 'Syne', sans-serif; font-size: 1.6rem;
+    font-weight: 800; margin-bottom: 6px;
+  }
+  .room-lobby-sub {
+    color: var(--text-muted); font-size: 0.85rem;
+    margin-bottom: 28px; line-height: 1.5;
+  }
+  .room-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .room-create-btn {
+    background: linear-gradient(135deg, var(--accent2), #00b89c);
+    border: none; border-radius: 12px; padding: 13px;
+    color: #0a0a0f; font-size: 0.92rem; font-weight: 700;
+    cursor: pointer; font-family: 'Syne', sans-serif;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .room-create-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,229,191,0.4); }
+  .room-create-btn:active { transform: scale(0.97); }
+  .room-join-wrap { display: flex; gap: 8px; }
+  .room-code-input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 13px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 1rem;
+    outline: none; transition: border-color 0.2s;
+    text-align: center; letter-spacing: 3px; text-transform: uppercase;
+    font-weight: 700;
+  }
+  .room-code-input:focus { border-color: var(--accent2); }
+  .room-code-input::placeholder { letter-spacing: 0; font-weight: 400; font-size: 0.82rem; text-transform: none; }
+  .room-join-btn {
+    background: linear-gradient(135deg, var(--accent), #5a3fcc);
+    border: none; border-radius: 10px; padding: 11px 18px;
+    color: white; font-size: 0.86rem; font-weight: 700;
+    cursor: pointer; font-family: 'Syne', sans-serif; transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .room-join-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,92,252,0.5); }
+  .room-close-lobby { color: var(--text-muted); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
+
+  /* Room main view */
+  .room-main { display: none; flex-direction: column; height: 100vh; }
+  .room-main.active { display: flex; }
+
+  /* Room header */
+  .room-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 12px 16px; display: flex; align-items: center;
+    justify-content: space-between; gap: 10px; flex-shrink: 0;
+  }
+  .room-header-left { display: flex; align-items: center; gap: 10px; }
+  .room-code-badge {
+    background: linear-gradient(135deg, rgba(0,229,191,0.15), rgba(124,92,252,0.1));
+    border: 1px solid rgba(0,229,191,0.3); border-radius: 10px;
+    padding: 6px 12px; font-family: 'DM Mono', monospace;
+    font-size: 0.82rem; font-weight: 700; color: var(--accent2);
+    cursor: pointer; transition: all 0.2s; letter-spacing: 2px;
+  }
+  .room-code-badge:hover { border-color: var(--accent2); transform: scale(1.03); }
+  .room-members { display: flex; align-items: center; gap: -4px; }
+  .room-member-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--surface); margin-left: -6px;
+    object-fit: cover; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: white; font-weight: 700;
+    transition: transform 0.2s;
+  }
+  .room-member-avatar:hover { transform: scale(1.2); z-index: 1; }
+  .room-member-count {
+    font-size: 0.72rem; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; margin-left: 8px;
+  }
+  .room-leave-btn {
+    background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 8px; padding: 6px 12px; color: var(--accent3);
+    font-size: 0.74rem; cursor: pointer; font-family: 'DM Mono', monospace;
+    transition: all 0.2s;
+  }
+  .room-leave-btn:hover { background: rgba(255,107,107,0.2); }
+
+  /* Room body */
+  .room-body { flex: 1; display: grid; grid-template-columns: 1fr 280px; overflow: hidden; }
+
+  /* Room study area */
+  .room-study { padding: 16px; overflow-y: auto; }
+  .room-topic-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px; margin-bottom: 14px;
+  }
+  .room-topic-label {
+    font-size: 0.68rem; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; margin-bottom: 8px; text-transform: uppercase;
+  }
+  .room-topic-input-row { display: flex; gap: 8px; }
+  .room-topic-field {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .room-topic-field:focus { border-color: var(--accent2); }
+  .room-study-btn {
+    background: linear-gradient(135deg, var(--accent2), #00b89c);
+    border: none; border-radius: 8px; padding: 9px 16px;
+    color: #0a0a0f; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; font-family: 'Syne', sans-serif; white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .room-study-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,229,191,0.4); }
+  .room-study-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Room MCQ battle */
+  .room-battle-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .room-battle-header {
+    background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(245,197,24,0.06));
+    border-bottom: 1px solid var(--border); padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .room-battle-title {
+    font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .room-battle-start-btn {
+    background: linear-gradient(135deg, #ff6b6b, #d44);
+    border: none; border-radius: 8px; padding: 6px 14px;
+    color: white; font-size: 0.76rem; font-weight: 700;
+    cursor: pointer; font-family: 'Syne', sans-serif; transition: all 0.2s;
+  }
+  .room-battle-start-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,107,107,0.4); }
+  .room-battle-area { padding: 14px; }
+  .room-battle-waiting {
+    text-align: center; padding: 24px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  }
+  .room-battle-waiting-icon { font-size: 2rem; margin-bottom: 8px; animation: floatBounce 2s ease-in-out infinite; }
+  @keyframes floatBounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+
+  /* Live leaderboard */
+  .room-sidebar {
+    border-left: 1px solid var(--border); background: var(--surface);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .room-sidebar-header {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif; font-size: 0.84rem; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .room-leaderboard { flex: 1; overflow-y: auto; }
+  .room-lb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    transition: background 0.15s; animation: fadeIn 0.3s ease;
+  }
+  .room-lb-item:hover { background: var(--surface2); }
+  .room-lb-item.me { background: rgba(124,92,252,0.06); border-left: 3px solid var(--accent); }
+  .room-lb-rank {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.9rem; width: 20px; text-align: center; flex-shrink: 0;
+  }
+  .room-lb-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    object-fit: cover; border: 2px solid var(--border); flex-shrink: 0;
+    background: var(--accent); display: flex; align-items: center;
+    justify-content: center; font-size: 10px; color: white; font-weight: 700;
+  }
+  .room-lb-name { flex: 1; font-size: 0.82rem; font-weight: 500; }
+  .room-lb-score {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.88rem; color: var(--gold);
+  }
+  .room-lb-score-change {
+    font-size: 0.65rem; color: var(--accent2);
+    font-family: 'DM Mono', monospace; animation: scoreUp 0.5s ease;
+  }
+  @keyframes scoreUp { from{transform:translateY(4px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+  /* Room chat */
+  .room-chat {
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; height: 200px;
+  }
+  .room-chat-header {
+    padding: 8px 14px; border-bottom: 1px solid var(--border);
+    font-size: 0.72rem; color: var(--text-muted); font-family: 'DM Mono', monospace;
+  }
+  .room-chat-messages {
+    flex: 1; overflow-y: auto; padding: 8px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .room-chat-msg {
+    font-size: 0.76rem; line-height: 1.4;
+    animation: msgSlideIn 0.2s ease;
+  }
+  .room-chat-msg .chat-name { font-weight: 600; color: var(--accent); }
+  .room-chat-msg .chat-me { color: var(--accent2); }
+  .room-reactions {
+    display: flex; gap: 4px; padding: 6px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .reaction-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px 8px; cursor: pointer;
+    font-size: 0.9rem; transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .reaction-btn:hover { transform: scale(1.3); border-color: var(--accent); }
+  .reaction-btn:active { transform: scale(0.9); }
+
+  /* Room MCQ question */
+  .room-mcq-q {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-bottom: 10px;
+    font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; line-height: 1.4;
+  }
+  .room-mcq-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .room-mcq-opt {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 10px; padding: 10px 12px; cursor: pointer;
+    font-size: 0.82rem; font-weight: 500; transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    text-align: center;
+  }
+  .room-mcq-opt:hover:not(.disabled) { border-color: var(--accent); background: rgba(124,92,252,0.1); transform: translateY(-2px); }
+  .room-mcq-opt.correct { border-color: var(--accent2); background: rgba(0,229,191,0.12); color: var(--accent2); }
+  .room-mcq-opt.wrong { border-color: var(--accent3); background: rgba(255,107,107,0.1); color: var(--accent3); }
+  .room-mcq-opt.disabled { cursor: default; }
+
+  /* Confetti animation for winner */
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  .confetti-piece {
+    position: fixed; width: 8px; height: 8px; border-radius: 2px;
+    animation: confettiFall linear forwards; pointer-events: none; z-index: 700;
+  }
+
+  @media(max-width:768px) {
+    .room-body { grid-template-columns: 1fr; }
+    .room-sidebar { display: none; }
+    .room-main.mobile-sidebar .room-sidebar { display: flex; position: fixed; inset: 0; z-index: 650; }
+    .room-main.mobile-sidebar .room-study { display: none; }
+    .room-mcq-opts { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -867,6 +1152,7 @@
           <!-- Menu label -->
           <div class="dropdown-section-label">FEATURES</div>
           <button class="dropdown-item" onclick="switchToMain(); closeDropdown()"><span class="item-icon">🏠</span> Home</button>
+          <button class="dropdown-item rooms-item" onclick="openStudyRooms()"><span class="item-icon">🏠</span> Study Rooms</button>
           <button class="dropdown-item" onclick="switchToHistory()"><span class="item-icon">📋</span> Notes History</button>
           <button class="dropdown-item" onclick="startBrainRot()"><span class="item-icon">🧠</span> Brain Rot Mode</button>
           <button class="dropdown-item" onclick="exportPDF()"><span class="item-icon">📄</span> Export PDF</button>
@@ -1982,8 +2268,421 @@
     if (di) di.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendDoubt(); } });
   });
 
+
+  // ── STUDY ROOMS ─────────────────────────────────────────────────────────────
+  let roomCode = null;
+  let roomEventSource = null;
+  let roomMembers = {};
+  let roomScores = {};
+  let roomNotes = null;
+  let roomBattleActive = false;
+  let roomCurrentQ = 0;
+  let roomBattleQuestions = [];
+  let roomBattleCache = {};
+
+  function openStudyRooms() {
+    closeDropdown();
+    document.getElementById('roomOverlay').classList.add('active');
+    document.getElementById('roomLobby').style.display = 'flex';
+    document.getElementById('roomMain').classList.remove('active');
+  }
+
+  function closeStudyRooms() {
+    leaveRoom();
+    document.getElementById('roomOverlay').classList.remove('active');
+  }
+
+  async function createRoom() {
+    try {
+      const res = await fetch('/api/room/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      joinRoomWithCode(data.code);
+    } catch(err) { showToast('⚠️ ' + err.message); }
+  }
+
+  function joinRoom() {
+    const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+    if (code.length !== 6) { showToast('⚠️ Enter a valid 6-digit room code!'); return; }
+    joinRoomWithCode(code);
+  }
+
+  function joinRoomWithCode(code) {
+    roomCode = code;
+    document.getElementById('roomCodeDisplay').textContent = code;
+    document.getElementById('roomLobby').style.display = 'none';
+    document.getElementById('roomMain').classList.add('active');
+    // Connect SSE for real-time updates
+    connectRoomSSE(code);
+    // Announce join
+    fetch('/api/room/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      body: JSON.stringify({ code, name: currentUser?.name || 'Student', picture: currentUser?.picture || '' })
+    }).catch(() => {});
+    showToast('🏠 Room ' + code + ' — Share this code with friends!');
+    trackEvent('room_joined', { code });
+  }
+
+  function connectRoomSSE(code) {
+    if (roomEventSource) roomEventSource.close();
+    roomEventSource = new EventSource('/api/room/events?code=' + code + '&token=' + authToken);
+    roomEventSource.onmessage = function(e) {
+      try {
+        const event = JSON.parse(e.data);
+        handleRoomEvent(event);
+      } catch(err) {}
+    };
+    roomEventSource.onerror = function() {
+      // Reconnect after 3s
+      setTimeout(() => { if (roomCode) connectRoomSSE(roomCode); }, 3000);
+    };
+  }
+
+  function handleRoomEvent(event) {
+    switch(event.type) {
+      case 'members':
+        roomMembers = event.members || {};
+        updateRoomMembers();
+        break;
+      case 'notes':
+        roomNotes = event.notes;
+        showRoomNotes(event.topic, event.notes);
+        break;
+      case 'reaction':
+        addRoomChat(event.name, event.emoji, event.isMe);
+        break;
+      case 'score':
+        updateRoomScore(event.email, event.score, event.name);
+        break;
+      case 'battle_start':
+        startRoomBattleClient(event.questions);
+        break;
+      case 'battle_answer':
+        updateRoomScore(event.email, event.score, event.name);
+        break;
+    }
+  }
+
+  function updateRoomMembers() {
+    const membersEl = document.getElementById('roomMembers');
+    const countEl = document.getElementById('roomMemberCount');
+    if (!membersEl) return;
+    const members = Object.values(roomMembers);
+    membersEl.innerHTML = members.slice(0, 5).map(m => {
+      const initials = (m.name || 'S').charAt(0).toUpperCase();
+      return m.picture
+        ? '<img class="room-member-avatar" src="' + m.picture + '" title="' + m.name + '" onerror="this.outerHTML='<div class=room-member-avatar>' + initials + '</div>'">'
+        : '<div class="room-member-avatar">' + initials + '</div>';
+    }).join('');
+    if (countEl) countEl.textContent = members.length + ' studying';
+    updateRoomLeaderboard();
+  }
+
+  function updateRoomLeaderboard() {
+    const lb = document.getElementById('roomLeaderboard');
+    if (!lb) return;
+    const members = Object.values(roomMembers).sort((a, b) => (roomScores[b.email] || 0) - (roomScores[a.email] || 0));
+    if (!members.length) { lb.innerHTML = '<div style="padding:16px;text-align:center;font-size:0.76rem;color:var(--text-dim);font-family:DM Mono,monospace">Waiting for members...</div>'; return; }
+    const medals = ['🥇', '🥈', '🥉'];
+    lb.innerHTML = members.map((m, i) => {
+      const score = roomScores[m.email] || 0;
+      const isMe = m.email === currentUser?.email;
+      const initials = (m.name || 'S').charAt(0).toUpperCase();
+      const avatar = m.picture
+        ? '<img class="room-lb-avatar" src="' + m.picture + '" onerror="this.outerHTML='<div class=room-lb-avatar>' + initials + '</div>'">'
+        : '<div class="room-lb-avatar">' + initials + '</div>';
+      return '<div class="room-lb-item' + (isMe ? ' me' : '') + '">'
+        + '<div class="room-lb-rank">' + (i < 3 ? medals[i] : i + 1) + '</div>'
+        + avatar
+        + '<div class="room-lb-name">' + m.name + (isMe ? ' <span style="font-size:0.6rem;color:var(--accent)">(you)</span>' : '') + '</div>'
+        + '<div class="room-lb-score">' + score + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  function updateRoomScore(email, score, name) {
+    const old = roomScores[email] || 0;
+    roomScores[email] = score;
+    if (score > old && document.getElementById('roomLeaderboard')) {
+      updateRoomLeaderboard();
+      // Show score change animation
+      const items = document.querySelectorAll('.room-lb-item');
+      items.forEach(item => {
+        if (item.querySelector('.room-lb-name')?.textContent?.includes(name)) {
+          const change = document.createElement('span');
+          change.className = 'room-lb-score-change';
+          change.textContent = '+' + (score - old);
+          item.appendChild(change);
+          setTimeout(() => change.remove(), 1000);
+        }
+      });
+    }
+  }
+
+  async function roomGenerateNotes() {
+    const topic = document.getElementById('roomTopicInput').value.trim();
+    if (!topic) { showToast('⚠️ Enter a topic first!'); return; }
+    const btn = document.getElementById('roomStudyBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify({ topic, level: 'intermediate', depth: 'standard' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      // Broadcast notes to all room members
+      await fetch('/api/room/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify({ code: roomCode, type: 'notes', topic, notes: data })
+      });
+      showRoomNotes(topic, data);
+    } catch(err) { showToast('⚠️ ' + err.message); }
+    finally { if (btn) { btn.disabled = false; btn.textContent = '✦ Study'; } }
+  }
+
+  function showRoomNotes(topic, notes) {
+    roomNotes = notes;
+    const area = document.getElementById('roomNotesArea');
+    if (area) area.style.display = 'block';
+    const battleArea = document.getElementById('roomBattleArea');
+    if (battleArea) battleArea.innerHTML = '<div class="room-battle-waiting"><div class="room-battle-waiting-icon">⚔️</div><div>Topic: <strong>' + topic + '</strong><br/>Click "Start Battle!" to begin the MCQ showdown! 🔥</div></div>';
+    showToast('📚 ' + topic + ' notes ready for everyone!');
+  }
+
+  async function startRoomBattle() {
+    if (!roomNotes || !roomNotes.qa) { showToast('⚠️ Generate notes first!'); return; }
+    const questions = roomNotes.qa.slice(0, 8).map((item) => {
+      const allA = roomNotes.qa.map(q => q.a);
+      const others = allA.filter(a => a !== item.a).sort(() => Math.random() - 0.5).slice(0, 3);
+      const opts = [...others, item.a].sort(() => Math.random() - 0.5);
+      return { q: item.q, a: item.a, opts };
+    });
+    await fetch('/api/room/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      body: JSON.stringify({ code: roomCode, type: 'battle_start', questions })
+    });
+    startRoomBattleClient(questions);
+  }
+
+  function startRoomBattleClient(questions) {
+    roomBattleQuestions = questions;
+    roomBattleActive = true;
+    roomCurrentQ = 0;
+    roomBattleCache = {};
+    showRoomBattleQuestion();
+    trackEvent('room_battle_started');
+  }
+
+  function showRoomBattleQuestion() {
+    const q = roomBattleQuestions[roomCurrentQ];
+    if (!q) { endRoomBattle(); return; }
+    const area = document.getElementById('roomBattleArea');
+    if (!area) return;
+    const opts = q.opts || [];
+    roomBattleCache[roomCurrentQ] = { correctAnswer: q.a, opts };
+    area.innerHTML =
+      '<div style="font-size:0.7rem;color:var(--text-muted);font-family:DM Mono,monospace;margin-bottom:8px">Question ' + (roomCurrentQ+1) + ' of ' + roomBattleQuestions.length + '</div>'
+      + '<div class="room-mcq-q">' + q.q + '</div>'
+      + '<div class="room-mcq-opts">'
+      + opts.map((opt, j) => '<div class="room-mcq-opt" onclick="answerRoomBattle(' + j + ')" id="rbopt-' + j + '">' + opt + '</div>').join('')
+      + '</div>';
+  }
+
+  async function answerRoomBattle(chosenIdx) {
+    const cache = roomBattleCache[roomCurrentQ];
+    if (!cache) return;
+    const correctIdx = cache.opts.indexOf(cache.correctAnswer);
+    document.querySelectorAll('.room-mcq-opt').forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+    const isCorrect = chosenIdx === correctIdx;
+    document.getElementById('rbopt-' + chosenIdx)?.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (!isCorrect) document.getElementById('rbopt-' + correctIdx)?.classList.add('correct');
+    if (isCorrect) {
+      const newScore = (roomScores[currentUser?.email] || 0) + 10;
+      roomScores[currentUser?.email] = newScore;
+      updateRoomLeaderboard();
+      // Broadcast score
+      await fetch('/api/room/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify({ code: roomCode, type: 'score', email: currentUser?.email, score: newScore, name: currentUser?.name })
+      }).catch(() => {});
+    }
+    roomCurrentQ++;
+    setTimeout(() => {
+      if (roomCurrentQ < roomBattleQuestions.length) showRoomBattleQuestion();
+      else endRoomBattle();
+    }, 800);
+  }
+
+  function endRoomBattle() {
+    roomBattleActive = false;
+    const area = document.getElementById('roomBattleArea');
+    if (!area) return;
+    const myScore = roomScores[currentUser?.email] || 0;
+    const members = Object.values(roomMembers);
+    const myRank = members.filter(m => (roomScores[m.email] || 0) > myScore).length + 1;
+    area.innerHTML =
+      '<div style="text-align:center;padding:20px">'
+      + '<div style="font-size:2.5rem;margin-bottom:8px">' + (myRank === 1 ? '🏆' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '💪') + '</div>'
+      + '<div style="font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:4px">Rank #' + myRank + ' — ' + myScore + ' points!</div>'
+      + '<div style="font-size:0.8rem;color:var(--text-muted);font-family:DM Mono,monospace;margin-bottom:16px">' + (myRank === 1 ? 'You crushed it! 🔥' : 'Good game! Keep studying 💪') + '</div>'
+      + '<button onclick="startRoomBattle()" style="background:linear-gradient(135deg,#ff6b6b,#d44);border:none;border-radius:8px;padding:9px 20px;color:white;font-weight:700;cursor:pointer;font-family:Syne,sans-serif;font-size:0.82rem">⚔️ Play Again</button>'
+      + '</div>';
+    if (myRank === 1) launchConfetti();
+  }
+
+  function launchConfetti() {
+    const colors = ['#7c5cfc','#00e5bf','#ff6b6b','#f5c518','#fff'];
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.cssText = 'left:' + (10 + Math.random() * 80) + 'vw;top:-10px;background:' + colors[Math.floor(Math.random()*colors.length)] + ';animation-duration:' + (1.5 + Math.random() * 2) + 's;animation-delay:0s;border-radius:' + (Math.random() > 0.5 ? '50%' : '2px');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+      }, i * 40);
+    }
+  }
+
+  function addRoomChat(name, emoji, isMe) {
+    const msgs = document.getElementById('roomChatMessages');
+    if (!msgs) return;
+    const div = document.createElement('div');
+    div.className = 'room-chat-msg';
+    div.innerHTML = '<span class="' + (isMe ? 'chat-me' : 'chat-name') + '">' + name + '</span> reacted ' + emoji;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    // Keep only last 20 messages
+    while (msgs.children.length > 20) msgs.removeChild(msgs.firstChild);
+  }
+
+  async function sendReaction(emoji) {
+    if (!roomCode) return;
+    fetch('/api/room/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      body: JSON.stringify({ code: roomCode, type: 'reaction', emoji, name: currentUser?.name || 'You', email: currentUser?.email })
+    }).catch(() => {});
+    addRoomChat('You', emoji, true);
+  }
+
+  function copyRoomCode() {
+    if (!roomCode) return;
+    navigator.clipboard.writeText(roomCode).then(() => showToast('📋 Room code ' + roomCode + ' copied! Share with friends 🏠'));
+  }
+
+  function leaveRoom() {
+    if (roomEventSource) { roomEventSource.close(); roomEventSource = null; }
+    if (roomCode) {
+      fetch('/api/room/leave', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify({ code: roomCode })
+      }).catch(() => {});
+    }
+    roomCode = null; roomMembers = {}; roomScores = {};
+    roomNotes = null; roomBattleActive = false;
+    document.getElementById('roomOverlay')?.classList.remove('active');
+  }
+
   showNotifBanner();
   init();
 </script>
+
+<!-- STUDY ROOMS OVERLAY -->
+<div class="room-overlay" id="roomOverlay">
+
+  <!-- LOBBY -->
+  <div class="room-lobby" id="roomLobby">
+    <div class="room-lobby-card">
+      <div class="room-lobby-icon">🏠</div>
+      <div class="room-lobby-title">Study Rooms</div>
+      <div class="room-lobby-sub">Study together with friends in real time.<br/>Same notes. Live MCQ battle. Who scores highest? 🏆</div>
+      <div class="room-actions">
+        <button class="room-create-btn" onclick="createRoom()">✦ Create a Room</button>
+        <div class="room-join-wrap">
+          <input class="room-code-input" id="roomCodeInput" placeholder="Enter room code..." maxlength="6"/>
+          <button class="room-join-btn" onclick="joinRoom()">Join →</button>
+        </div>
+      </div>
+      <span class="room-close-lobby" onclick="closeStudyRooms()">← Back to StudySnap</span>
+    </div>
+  </div>
+
+  <!-- ROOM MAIN VIEW -->
+  <div class="room-main" id="roomMain">
+
+    <!-- Header -->
+    <div class="room-header">
+      <div class="room-header-left">
+        <div class="room-code-badge" onclick="copyRoomCode()" title="Click to copy room code">
+          🏠 <span id="roomCodeDisplay">------</span>
+        </div>
+        <div class="room-members" id="roomMembers"></div>
+        <div class="room-member-count" id="roomMemberCount">1 studying</div>
+      </div>
+      <button class="room-leave-btn" onclick="leaveRoom()">Leave Room</button>
+    </div>
+
+    <!-- Body -->
+    <div class="room-body">
+
+      <!-- Study Area -->
+      <div class="room-study">
+        <div class="room-topic-section">
+          <div class="room-topic-label">📚 Study Topic — everyone gets the same notes</div>
+          <div class="room-topic-input-row">
+            <input class="room-topic-field" id="roomTopicInput" placeholder="Enter topic for everyone to study..."/>
+            <button class="room-study-btn" id="roomStudyBtn" onclick="roomGenerateNotes()">✦ Study</button>
+          </div>
+        </div>
+
+        <!-- Notes preview in room -->
+        <div id="roomNotesArea" style="display:none">
+          <div class="room-battle-section">
+            <div class="room-battle-header">
+              <div class="room-battle-title">⚔️ Live MCQ Battle</div>
+              <button class="room-battle-start-btn" id="roomBattleBtn" onclick="startRoomBattle()">Start Battle!</button>
+            </div>
+            <div class="room-battle-area" id="roomBattleArea">
+              <div class="room-battle-waiting">
+                <div class="room-battle-waiting-icon">⚔️</div>
+                <div>Generate a topic first, then start the MCQ battle!<br/>Everyone answers simultaneously 🔥</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar: Leaderboard + Chat -->
+      <div class="room-sidebar">
+        <div class="room-sidebar-header">🏆 Live Scores</div>
+        <div class="room-leaderboard" id="roomLeaderboard"></div>
+        <div class="room-chat">
+          <div class="room-chat-header">💬 Quick Reactions</div>
+          <div class="room-chat-messages" id="roomChatMessages"></div>
+          <div class="room-reactions">
+            <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
+            <button class="reaction-btn" onclick="sendReaction('💀')">💀</button>
+            <button class="reaction-btn" onclick="sendReaction('😭')">😭</button>
+            <button class="reaction-btn" onclick="sendReaction('🏆')">🏆</button>
+            <button class="reaction-btn" onclick="sendReaction('🤯')">🤯</button>
+            <button class="reaction-btn" onclick="sendReaction('👏')">👏</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
