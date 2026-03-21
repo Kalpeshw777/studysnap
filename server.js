@@ -150,5 +150,50 @@ app.post("/api/verify-payment", authMiddleware, async (req, res) => {
   res.json({ success: true });
 });
 
+
+// ── AI DOUBT SOLVER ───────────────────────────────────────────────────────────
+app.post("/api/doubt", authMiddleware, async (req, res) => {
+  const { context, question } = req.body;
+  if (!question) return res.status(400).json({ error: "Question is required" });
+
+  const systemPrompt = `You are a friendly, smart study assistant helping an Indian student understand their topic.
+You have these notes as context: ${(context || '').substring(0, 1500)}
+
+Rules:
+- Answer clearly and simply
+- Use emojis occasionally to keep it engaging  
+- Keep answers concise (2-4 sentences) unless detail is needed
+- Give relatable Indian student examples when helpful
+- If you don't know something from the context, say so honestly`;
+
+  try {
+    const response = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: question }
+        ],
+        temperature: 0.7,
+        max_tokens: 512
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      const errMsg = data.error?.message || "";
+      if (errMsg.includes("rate_limit") || response.status === 429) {
+        return res.status(429).json({ error: "AI is busy! Please try again in a moment." });
+      }
+      return res.status(500).json({ error: "Could not get answer. Try again!" });
+    }
+    const answer = data.choices?.[0]?.message?.content || "Sorry, I could not answer that!";
+    res.json({ answer });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to get answer. Please try again." });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`StudySnap running on port ${PORT}`));
