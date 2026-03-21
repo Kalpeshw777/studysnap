@@ -32,6 +32,22 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Google Login Callback — must be defined before GSI loads -->
+<script>
+  function handleGoogleLogin(response) {
+    if (!response || !response.credential) {
+      console.error('No credential received');
+      return;
+    }
+    // Store credential and process after main script loads
+    window._pendingGoogleCredential = response.credential;
+    if (typeof window._processGoogleLogin === 'function') {
+      window._processGoogleLogin(response.credential);
+    }
+  }
+</script>
+
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -1485,12 +1501,12 @@
   }
 
   // ── GOOGLE LOGIN ───────────────────────────────────────────────────────────
-  async function handleGoogleLogin(response) {
+  async function processGoogleCredential(credential) {
     try {
       const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: response.credential })
+        body: JSON.stringify({ credential })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
@@ -1501,7 +1517,26 @@
       updateUI();
       trackEvent('login', { method: 'google' });
       showToast('👋 Welcome, ' + currentUser.name.split(' ')[0] + '! Everything is free 🎉');
-    } catch { showToast('⚠️ Login failed. Please try again.'); }
+    } catch(err) {
+      console.error('Login error:', err);
+      showToast('⚠️ Login failed. Please try again.');
+    }
+  }
+
+  // Register global processor so early callback can call it
+  window._processGoogleLogin = processGoogleCredential;
+
+  // Also handle via old callback name for compatibility
+  async function handleGoogleLogin(response) {
+    if (response && response.credential) {
+      await processGoogleCredential(response.credential);
+    }
+  }
+
+  // Process any pending credential that arrived before this script loaded
+  if (window._pendingGoogleCredential) {
+    processGoogleCredential(window._pendingGoogleCredential);
+    window._pendingGoogleCredential = null;
   }
 
   function logout() {
@@ -2375,7 +2410,7 @@
     membersEl.innerHTML = members.slice(0, 5).map(m => {
       const initials = (m.name || 'S').charAt(0).toUpperCase();
       return m.picture
-        ? '<img class="room-member-avatar" src="' + m.picture + '" title="' + m.name + '" onerror="this.outerHTML='<div class=room-member-avatar>' + initials + '</div>'">'
+        ? '<img class="room-member-avatar" src="' + m.picture + '" title="' + m.name + '">'
         : '<div class="room-member-avatar">' + initials + '</div>';
     }).join('');
     if (countEl) countEl.textContent = members.length + ' studying';
@@ -2393,7 +2428,7 @@
       const isMe = m.email === currentUser?.email;
       const initials = (m.name || 'S').charAt(0).toUpperCase();
       const avatar = m.picture
-        ? '<img class="room-lb-avatar" src="' + m.picture + '" onerror="this.outerHTML='<div class=room-lb-avatar>' + initials + '</div>'">'
+        ? '<img class="room-lb-avatar" src="' + m.picture + '">'
         : '<div class="room-lb-avatar">' + initials + '</div>';
       return '<div class="room-lb-item' + (isMe ? ' me' : '') + '">'
         + '<div class="room-lb-rank">' + (i < 3 ? medals[i] : i + 1) + '</div>'
