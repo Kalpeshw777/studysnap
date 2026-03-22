@@ -1,4 +1,4 @@
-const CACHE = 'studysnap-v2';
+const CACHE = 'studysnap-v3';
 const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
@@ -7,7 +7,9 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
   self.clients.claim();
 });
 
@@ -17,26 +19,20 @@ self.addEventListener('fetch', e => {
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
 
-// Push notification handler
 self.addEventListener('push', e => {
   const data = e.data ? e.data.json() : {};
   e.waitUntil(
-    self.registration.showNotification(data.title || 'StudySnap 📖', {
+    self.registration.showNotification(data.title || 'StudySnap', {
       body: data.body || 'Time to study!',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       tag: 'studysnap-reminder',
-      data: { url: '/' },
-      actions: [
-        { action: 'study', title: '📖 Study Now' },
-        { action: 'dismiss', title: 'Later' }
-      ]
+      data: { url: '/' }
     })
   );
 });
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  if (e.action === 'dismiss') return;
   e.waitUntil(clients.openWindow('/'));
 });
