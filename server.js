@@ -302,5 +302,46 @@ Rules:
   }
 });
 
+
+// ── FEEDBACK ──────────────────────────────────────────────────────────────────
+app.post("/api/feedback", authMiddleware, async (req, res) => {
+  const { type, rating, message, page, userAgent } = req.body;
+  if (!message) return res.status(400).json({ error: "Message required" });
+  try {
+    // Save to MongoDB
+    await db.collection("feedback").insertOne({
+      email: req.user.email,
+      type: type || 'general',
+      rating: rating || 0,
+      message,
+      page: page || '',
+      userAgent: userAgent || '',
+      createdAt: new Date()
+    });
+
+    // Log feedback to console so it appears in Render logs
+    console.log('[FEEDBACK]', JSON.stringify({ type, rating, message, email: req.user.email }));
+    res.json({ success: true });
+  } catch(err) {
+    res.status(500).json({ error: "Failed to save feedback" });
+  }
+});
+
+// ── VIEW FEEDBACK (admin only) ────────────────────────────────────────────────
+app.get("/api/feedback/all", authMiddleware, async (req, res) => {
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'kalpeshwadile6@gmail.com';
+  if (req.user.email !== ADMIN_EMAIL) return res.status(403).json({ error: "Not authorized" });
+  try {
+    const feedback = await db.collection("feedback")
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .toArray();
+    res.json(feedback);
+  } catch(err) {
+    res.status(500).json({ error: "Failed to fetch feedback" });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`StudySnap running on port ${PORT}`));
