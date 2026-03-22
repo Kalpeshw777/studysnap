@@ -1294,6 +1294,219 @@
     .revision-due-btns { flex-direction: column; gap: 4px; }
   }
 
+
+  /* ── NOTES SHARING ────────────────────────────────────────────────────────── */
+  .share-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(10px); z-index: 250;
+    display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  .share-modal-overlay.active { display: flex; }
+  .share-modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px 24px; max-width: 440px; width: 100%;
+    animation: fadeUp 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align: center;
+  }
+  .share-modal-icon { font-size: 2.4rem; margin-bottom: 10px; }
+  .share-modal h2 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; margin-bottom: 6px; }
+  .share-modal-sub { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 20px; line-height: 1.5; }
+  .share-link-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .share-link-text {
+    flex: 1; font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    color: var(--accent2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .share-link-copy {
+    background: var(--accent); border: none; border-radius: 7px;
+    padding: 5px 12px; color: white; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap;
+    transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1); flex-shrink: 0;
+  }
+  .share-link-copy:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(124,92,252,0.4); }
+  .share-link-copy:active { transform: scale(0.95); }
+  .share-platforms { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .share-platform-btn {
+    border: none; border-radius: 10px; padding: 11px 14px;
+    font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    font-family: 'Syne', sans-serif; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .share-wa { background: linear-gradient(135deg, #25D366, #128C7E); color: white; }
+  .share-wa:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37,211,102,0.4); }
+  .share-tw { background: linear-gradient(135deg, #1DA1F2, #0d8fd4); color: white; }
+  .share-tw:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(29,161,242,0.4); }
+  .share-tg { background: linear-gradient(135deg, #0088cc, #006699); color: white; }
+  .share-tg:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,136,204,0.4); }
+  .share-native { background: linear-gradient(135deg, var(--accent), #5a3fcc); color: white; }
+  .share-native:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(124,92,252,0.4); }
+  .share-modal-close { color: var(--text-muted); font-size: 0.76rem; cursor: pointer; text-decoration: underline; }
+
+  /* ── FEEDBACK WIDGET ───────────────────────────────────────────────────────── */
+  .feedback-fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #5a3fcc);
+    border: none; cursor: pointer; font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(124,92,252,0.5);
+    z-index: 150; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    animation: fabPulse 3s ease-in-out infinite;
+  }
+  .feedback-fab:hover { transform: scale(1.12) rotate(10deg); box-shadow: 0 8px 28px rgba(124,92,252,0.6); }
+  .feedback-fab:active { transform: scale(0.92); }
+  @keyframes fabPulse {
+    0%,100% { box-shadow: 0 4px 20px rgba(124,92,252,0.5); }
+    50% { box-shadow: 0 4px 32px rgba(124,92,252,0.8); }
+  }
+  .feedback-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px); z-index: 250;
+    display: none; align-items: flex-end; justify-content: flex-end;
+    padding: 16px;
+  }
+  .feedback-overlay.active { display: flex; }
+  .feedback-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;
+    animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    margin-bottom: 64px;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+  .feedback-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .feedback-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 7px; }
+  .feedback-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 0; }
+
+  /* Feedback type selector */
+  .feedback-types { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .feedback-type-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 12px; font-size: 0.74rem;
+    cursor: pointer; font-family: 'DM Mono', monospace; color: var(--text-muted);
+    transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .feedback-type-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.04); }
+  .feedback-type-btn.active { background: rgba(124,92,252,0.12); border-color: var(--accent); color: var(--accent); }
+
+  /* Star rating */
+  .feedback-rating { display: flex; gap: 6px; margin-bottom: 14px; justify-content: center; }
+  .rating-star {
+    font-size: 1.6rem; cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    filter: grayscale(1); opacity: 0.4;
+  }
+  .rating-star:hover, .rating-star.active { filter: grayscale(0); opacity: 1; transform: scale(1.2); }
+
+  /* Textarea */
+  .feedback-textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 13px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.84rem;
+    outline: none; resize: none; height: 90px; line-height: 1.5;
+    transition: border-color 0.2s; margin-bottom: 12px;
+  }
+  .feedback-textarea:focus { border-color: var(--accent); }
+  .feedback-textarea::placeholder { color: var(--text-dim); }
+
+  .feedback-submit-btn {
+    width: 100%; background: linear-gradient(135deg, var(--accent), #5a3fcc);
+    border: none; border-radius: 10px; padding: 12px;
+    color: white; font-size: 0.88rem; font-weight: 700;
+    cursor: pointer; font-family: 'Syne', sans-serif;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .feedback-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,92,252,0.5); }
+  .feedback-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .feedback-success {
+    text-align: center; padding: 20px 0;
+    animation: fadeUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .feedback-success-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .feedback-success-text { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .feedback-success-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+  @media(max-width:600px) {
+    .feedback-fab { bottom: 16px; right: 16px; width: 44px; height: 44px; font-size: 1.1rem; }
+    .feedback-overlay { padding: 12px; }
+    .feedback-panel { margin-bottom: 60px; }
+    .share-platforms { grid-template-columns: 1fr 1fr; }
+  }
+
+
+  /* Room sidebar tabs */
+  .room-sidebar-tabs {
+    display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .room-tab {
+    flex: 1; padding: 10px 8px; font-size: 0.76rem;
+    font-family: 'DM Mono', monospace; color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .room-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .room-tab:hover { color: var(--text); }
+  .room-panel { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+  /* Room chat messages */
+  .room-chat-messages {
+    flex: 1; overflow-y: auto; padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 6px; min-height: 0;
+  }
+  .room-chat-msg-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .room-chat-bubble {
+    max-width: 85%; padding: 7px 11px; border-radius: 12px;
+    font-size: 0.78rem; line-height: 1.4; word-break: break-word;
+    animation: msgSlideIn 0.2s ease;
+  }
+  .room-chat-bubble.me {
+    background: linear-gradient(135deg, var(--accent), #5a3fcc);
+    color: white; align-self: flex-end; border-bottom-right-radius: 3px;
+  }
+  .room-chat-bubble.other {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); align-self: flex-start; border-bottom-left-radius: 3px;
+  }
+  .room-chat-bubble.reaction {
+    background: transparent; border: none;
+    font-size: 1.1rem; padding: 2px 6px; align-self: flex-start;
+  }
+  .room-chat-sender {
+    font-size: 0.62rem; color: var(--text-dim);
+    font-family: 'DM Mono', monospace; margin-bottom: 2px;
+  }
+  .room-chat-sender.me { text-align: right; }
+
+  /* Chat input */
+  .room-chat-input-row {
+    display: flex; gap: 6px; padding: 8px 10px;
+    border-top: 1px solid var(--border); flex-shrink: 0; background: var(--surface);
+  }
+  .room-chat-input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 7px 13px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .room-chat-input:focus { border-color: var(--accent); }
+  .room-chat-input::placeholder { color: var(--text-dim); }
+  .room-chat-send {
+    background: linear-gradient(135deg, var(--accent), #5a3fcc);
+    border: none; border-radius: 50%; width: 32px; height: 32px;
+    color: white; font-size: 0.85rem; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .room-chat-send:hover { transform: scale(1.1); box-shadow: 0 3px 10px rgba(124,92,252,0.5); }
+  .room-chat-send:active { transform: scale(0.92); }
+
+  @media(max-width:768px) {
+    .room-sidebar { display: flex !important; flex-direction: column; height: 280px; border-left: none; border-top: 1px solid var(--border); }
+    .room-body { grid-template-columns: 1fr; }
+    .room-sidebar { height: 250px; }
+  }
+
 </style>
 </head>
 <body>
@@ -1454,6 +1667,7 @@
       <div class="results-header">
         <div class="topic-title">Notes for: <span id="resultTopic"></span></div>
         <div class="action-btns">
+          <button class="action-btn" onclick="openShareModal()">🔗 Share</button>
           <button class="action-btn" onclick="copyNotes()">📋 Copy</button>
           <button class="action-btn" onclick="downloadNotes()">⬇️ .txt</button>
           <button class="action-btn pdf-btn" onclick="exportPDF()">📄 PDF</button>
@@ -2086,8 +2300,11 @@
   document.getElementById('topicInput').addEventListener('keydown', e => { if (e.key==='Enter') generate(); });
   document.addEventListener('keydown', e => {
     if (e.key==='Escape') { closeModal(); closeDropdown(); }
-    // Only trigger card controls when NOT typing in an input/textarea
     const isTyping = ['INPUT','TEXTAREA'].includes(document.activeElement?.tagName);
+    // Enter in room chat
+    if (e.key==='Enter' && document.activeElement?.id === 'roomChatInput') {
+      e.preventDefault(); sendRoomMessage(); return;
+    }
     if (isTyping) return;
     if (e.key==='ArrowRight' && currentCards.length) nextCard();
     if (e.key==='ArrowLeft' && currentCards.length) prevCard();
@@ -2615,7 +2832,12 @@
         showRoomNotes(event.topic, event.notes);
         break;
       case 'reaction':
-        addRoomChat(event.name, event.emoji, event.isMe);
+        addRoomChat(event.name, event.emoji, false);
+        break;
+      case 'chat':
+        if (event.email !== currentUser?.email) {
+          addRoomChatMessage(event.name, event.text, event.email, false);
+        }
         break;
       case 'score':
         updateRoomScore(event.email, event.score, event.name);
@@ -2843,13 +3065,19 @@
   function addRoomChat(name, emoji, isMe) {
     const msgs = document.getElementById('roomChatMessages');
     if (!msgs) return;
-    const div = document.createElement('div');
-    div.className = 'room-chat-msg';
-    div.innerHTML = '<span class="' + (isMe ? 'chat-me' : 'chat-name') + '">' + name + '</span> reacted ' + emoji;
-    msgs.appendChild(div);
+    const wrap = document.createElement('div');
+    wrap.className = 'room-chat-msg-wrap';
+    const sender = document.createElement('div');
+    sender.className = 'room-chat-sender';
+    sender.textContent = isMe ? 'You' : name;
+    const bubble = document.createElement('div');
+    bubble.className = 'room-chat-bubble reaction';
+    bubble.textContent = emoji + ' ' + (isMe ? 'You' : name);
+    wrap.appendChild(sender);
+    wrap.appendChild(bubble);
+    msgs.appendChild(wrap);
     msgs.scrollTop = msgs.scrollHeight;
-    // Keep only last 20 messages
-    while (msgs.children.length > 20) msgs.removeChild(msgs.firstChild);
+    while (msgs.children.length > 50) msgs.removeChild(msgs.firstChild);
   }
 
   async function sendReaction(emoji) {
@@ -3137,8 +3365,210 @@
     }
   }
 
+
+  // ── NOTES SHARING ────────────────────────────────────────────────────────────
+  let shareUrl = '';
+  let shareText = '';
+
+  function buildShareContent() {
+    const topic = document.getElementById('resultTopic')?.textContent || '';
+    if (!topic || !currentNotes) return false;
+    const def = currentNotes.definition || '';
+    const pts = (currentNotes.points || []).slice(0, 3).map((p, i) => (i+1) + '. ' + p.title).join(', ');
+    shareUrl = window.location.origin + '?topic=' + encodeURIComponent(topic);
+    shareText = 'Check out my StudySnap notes on "' + topic + '"!\n\n' + def.substring(0, 120) + '...\n\nKey points: ' + pts + '\n\nStudy for FREE: ' + shareUrl;
+    return true;
+  }
+
+  function openShareModal() {
+    if (!currentNotes) { showToast('Generate notes first to share!'); return; }
+    buildShareContent();
+    const topic = document.getElementById('resultTopic')?.textContent || '';
+    document.getElementById('shareModalSub').textContent = 'Share your notes on "' + topic + '" with friends!';
+    document.getElementById('shareLinkText').textContent = shareUrl;
+    document.getElementById('shareModalOverlay').classList.add('active');
+    trackEvent('share_opened', { topic });
+  }
+
+  function closeShareModal() { document.getElementById('shareModalOverlay').classList.remove('active'); }
+  function closeShareOutside(e) { if (e.target === document.getElementById('shareModalOverlay')) closeShareModal(); }
+
+  function copyShareLink() {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      const btn = document.querySelector('.share-link-copy');
+      if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000); }
+      showToast('Link copied! Share it with your friends');
+    }).catch(() => showToast('Copy failed - please copy manually'));
+    trackEvent('share_link_copied');
+  }
+
+  function shareToWhatsApp() {
+    buildShareContent();
+    window.open('https://wa.me/?text=' + encodeURIComponent(shareText), '_blank');
+    trackEvent('share_whatsapp');
+  }
+
+  function shareToTwitter() {
+    buildShareContent();
+    const tweet = 'Just studied "' + (document.getElementById('resultTopic')?.textContent || '') + '" using StudySnap AI! Free notes + flashcards + MCQ. Check it out: ' + shareUrl + ' #StudySnap #StudySmart';
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet), '_blank');
+    trackEvent('share_twitter');
+  }
+
+  function shareToTelegram() {
+    buildShareContent();
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(shareText), '_blank');
+    trackEvent('share_telegram');
+  }
+
+  async function shareNative() {
+    buildShareContent();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'StudySnap Notes', text: shareText, url: shareUrl });
+        trackEvent('share_native');
+      } catch(e) {}
+    } else {
+      copyShareLink();
+    }
+  }
+
+  // Handle incoming share links - auto-load topic
+  function checkIncomingShare() {
+    const params = new URLSearchParams(window.location.search);
+    const topic = params.get('topic');
+    if (topic && authToken) {
+      setTimeout(() => {
+        const input = document.getElementById('topicInput');
+        if (input) {
+          input.value = decodeURIComponent(topic);
+          showToast('Loading shared notes: ' + decodeURIComponent(topic) + ' 📖');
+          setTimeout(() => generate(), 800);
+        }
+      }, 1000);
+    }
+  }
+
+  // ── FEEDBACK ─────────────────────────────────────────────────────────────────
+  let feedbackType = 'suggestion';
+  let feedbackRating = 4;
+
+  function openFeedback() {
+    document.getElementById('feedbackOverlay').classList.add('active');
+    document.getElementById('feedbackForm').style.display = 'block';
+    document.getElementById('feedbackSuccess').style.display = 'none';
+    trackEvent('feedback_opened');
+  }
+
+  function closeFeedback() { document.getElementById('feedbackOverlay').classList.remove('active'); }
+  function closeFeedbackOutside(e) { if (e.target === document.getElementById('feedbackOverlay')) closeFeedback(); }
+
+  function setFeedbackType(btn, type) {
+    feedbackType = type;
+    document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const placeholders = {
+      suggestion: 'What feature would you like to see? Any improvement ideas?',
+      bug: 'Describe the bug — what happened, what page, what browser?',
+      love: 'What do you love about StudySnap? This motivates us!',
+      other: 'Tell us anything on your mind...'
+    };
+    const ta = document.getElementById('feedbackText');
+    if (ta) ta.placeholder = placeholders[type] || 'Tell us your thoughts...';
+  }
+
+  function setRating(rating) {
+    feedbackRating = rating;
+    document.querySelectorAll('.rating-star').forEach((star, i) => {
+      star.classList.toggle('active', i < rating);
+    });
+  }
+
+  async function submitFeedback() {
+    const text = document.getElementById('feedbackText')?.value.trim();
+    if (!text) { showToast('Please write your feedback first!'); return; }
+    const btn = document.getElementById('feedbackSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify({
+          type: feedbackType,
+          rating: feedbackRating,
+          message: text,
+          page: window.location.href,
+          userAgent: navigator.userAgent.substring(0, 100)
+        })
+      });
+      document.getElementById('feedbackForm').style.display = 'none';
+      document.getElementById('feedbackSuccess').style.display = 'block';
+      document.getElementById('feedbackText').value = '';
+      trackEvent('feedback_submitted', { type: feedbackType, rating: feedbackRating });
+      setTimeout(() => closeFeedback(), 3000);
+    } catch(err) {
+      showToast('Failed to send feedback. Please try again!');
+      if (btn) { btn.disabled = false; btn.textContent = 'Send Feedback'; }
+    }
+  }
+
+
+  // ── ROOM CHAT ────────────────────────────────────────────────────────────────
+  function switchRoomTab(tab) {
+    document.getElementById('roomTabScores').classList.toggle('active', tab === 'scores');
+    document.getElementById('roomTabChat').classList.toggle('active', tab === 'chat');
+    document.getElementById('roomPanelScores').style.display = tab === 'scores' ? 'flex' : 'none';
+    document.getElementById('roomPanelChat').style.display = tab === 'chat' ? 'flex' : 'none';
+    if (tab === 'chat') {
+      const msgs = document.getElementById('roomChatMessages');
+      if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    }
+  }
+
+  function sendRoomMessage() {
+    const input = document.getElementById('roomChatInput');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text || !roomCode) return;
+    input.value = '';
+    const name = currentUser?.name?.split(' ')[0] || 'You';
+    fetch('/api/room/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+      body: JSON.stringify({
+        code: roomCode, type: 'chat',
+        text, name, email: currentUser?.email
+      })
+    }).catch(() => {});
+    addRoomChatMessage(name, text, currentUser?.email, true);
+  }
+
+  function addRoomChatMessage(name, text, email, isMe) {
+    const msgs = document.getElementById('roomChatMessages');
+    if (!msgs) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'room-chat-msg-wrap';
+    const sender = document.createElement('div');
+    sender.className = 'room-chat-sender' + (isMe ? ' me' : '');
+    sender.textContent = isMe ? 'You' : name;
+    const bubble = document.createElement('div');
+    bubble.className = 'room-chat-bubble ' + (isMe ? 'me' : 'other');
+    bubble.textContent = text;
+    wrap.appendChild(sender);
+    wrap.appendChild(bubble);
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
+    while (msgs.children.length > 50) msgs.removeChild(msgs.firstChild);
+    // Switch to chat tab if not already there
+    if (!document.getElementById('roomTabChat').classList.contains('active')) {
+      document.getElementById('roomTabChat').style.animation = 'none';
+      document.getElementById('roomTabChat').textContent = '💬 Chat 🔴';
+    }
+  }
+
   initRevisionReminder();
   showNotifBanner();
+  checkIncomingShare();
   init();
 </script>
 
@@ -3209,22 +3639,90 @@
 
       <!-- Sidebar: Leaderboard + Chat -->
       <div class="room-sidebar">
-        <div class="room-sidebar-header">🏆 Live Scores</div>
-        <div class="room-leaderboard" id="roomLeaderboard"></div>
-        <div class="room-chat">
-          <div class="room-chat-header">💬 Quick Reactions</div>
+        <div class="room-sidebar-tabs">
+          <button class="room-tab active" onclick="switchRoomTab('scores')" id="roomTabScores">🏆 Scores</button>
+          <button class="room-tab" onclick="switchRoomTab('chat')" id="roomTabChat">💬 Chat</button>
+        </div>
+        <!-- Leaderboard panel -->
+        <div id="roomPanelScores" class="room-panel active">
+          <div class="room-leaderboard" id="roomLeaderboard"></div>
+        </div>
+        <!-- Chat panel -->
+        <div id="roomPanelChat" class="room-panel" style="display:none">
           <div class="room-chat-messages" id="roomChatMessages"></div>
-          <div class="room-reactions">
-            <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
-            <button class="reaction-btn" onclick="sendReaction('💀')">💀</button>
-            <button class="reaction-btn" onclick="sendReaction('😭')">😭</button>
-            <button class="reaction-btn" onclick="sendReaction('🏆')">🏆</button>
-            <button class="reaction-btn" onclick="sendReaction('🤯')">🤯</button>
-            <button class="reaction-btn" onclick="sendReaction('👏')">👏</button>
-          </div>
+        </div>
+        <!-- Reactions always visible -->
+        <div class="room-reactions">
+          <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
+          <button class="reaction-btn" onclick="sendReaction('💀')">💀</button>
+          <button class="reaction-btn" onclick="sendReaction('😭')">😭</button>
+          <button class="reaction-btn" onclick="sendReaction('🏆')">🏆</button>
+          <button class="reaction-btn" onclick="sendReaction('🤯')">🤯</button>
+          <button class="reaction-btn" onclick="sendReaction('👏')">👏</button>
+        </div>
+        <!-- Chat input -->
+        <div class="room-chat-input-row">
+          <input class="room-chat-input" id="roomChatInput" placeholder="Type a message..." maxlength="200"/>
+          <button class="room-chat-send" onclick="sendRoomMessage()">➤</button>
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+
+<!-- SHARE MODAL -->
+<div class="share-modal-overlay" id="shareModalOverlay" onclick="closeShareOutside(event)">
+  <div class="share-modal">
+    <div class="share-modal-icon">🔗</div>
+    <h2>Share These Notes</h2>
+    <p class="share-modal-sub" id="shareModalSub">Share your notes on any topic with friends instantly!</p>
+    <div class="share-link-box">
+      <div class="share-link-text" id="shareLinkText">Generate notes first to get a share link</div>
+      <button class="share-link-copy" onclick="copyShareLink()">Copy</button>
+    </div>
+    <div class="share-platforms">
+      <button class="share-platform-btn share-wa" onclick="shareToWhatsApp()">📱 WhatsApp</button>
+      <button class="share-platform-btn share-tw" onclick="shareToTwitter()">🐦 Twitter</button>
+      <button class="share-platform-btn share-tg" onclick="shareToTelegram()">✈️ Telegram</button>
+      <button class="share-platform-btn share-native" onclick="shareNative()">⬆️ More</button>
+    </div>
+    <span class="share-modal-close" onclick="closeShareModal()">Close</span>
+  </div>
+</div>
+
+<!-- FEEDBACK FAB -->
+<button class="feedback-fab" onclick="openFeedback()" id="feedbackFab" title="Give Feedback">💬</button>
+
+<!-- FEEDBACK PANEL -->
+<div class="feedback-overlay" id="feedbackOverlay" onclick="closeFeedbackOutside(event)">
+  <div class="feedback-panel">
+    <div class="feedback-header">
+      <div class="feedback-title">💬 Share Your Feedback</div>
+      <button class="feedback-close" onclick="closeFeedback()">✕</button>
+    </div>
+    <div id="feedbackForm">
+      <div class="feedback-types">
+        <button class="feedback-type-btn active" onclick="setFeedbackType(this, 'suggestion')">💡 Suggestion</button>
+        <button class="feedback-type-btn" onclick="setFeedbackType(this, 'bug')">🐛 Bug Report</button>
+        <button class="feedback-type-btn" onclick="setFeedbackType(this, 'love')">❤️ Love it!</button>
+        <button class="feedback-type-btn" onclick="setFeedbackType(this, 'other')">💭 Other</button>
+      </div>
+      <div class="feedback-rating" id="feedbackRating">
+        <span class="rating-star active" onclick="setRating(1)">⭐</span>
+        <span class="rating-star active" onclick="setRating(2)">⭐</span>
+        <span class="rating-star active" onclick="setRating(3)">⭐</span>
+        <span class="rating-star active" onclick="setRating(4)">⭐</span>
+        <span class="rating-star" onclick="setRating(5)">⭐</span>
+      </div>
+      <textarea class="feedback-textarea" id="feedbackText" placeholder="Tell us what you think, what to improve, or report a bug..."></textarea>
+      <button class="feedback-submit-btn" id="feedbackSubmitBtn" onclick="submitFeedback()">Send Feedback ✦</button>
+    </div>
+    <div class="feedback-success" id="feedbackSuccess" style="display:none">
+      <div class="feedback-success-icon">🎉</div>
+      <div class="feedback-success-text">Thank you so much!</div>
+      <div class="feedback-success-sub">Your feedback helps us make StudySnap better for everyone 🙏</div>
     </div>
   </div>
 </div>
