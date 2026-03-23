@@ -1,6 +1,6 @@
 # StudySnap — AI Exam Helper
 
-## Setup & Deploy (Same as your fitness app)
+## Setup & Deploy 
 
 ### Step 1 — Install dependencies
 ```
