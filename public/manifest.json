@@ -1,6 +1,6 @@
 {
-  "name": "StudySnap — AI Exam Helper",
-  "short_name": "StudySnap",
+  "name": "NoteNinja — AI Exam Helper",
+  "short_name": "NoteNinja",
   "description": "Free AI-powered exam notes, Q&A and flashcards for any topic",
   "start_url": "/",
   "display": "standalone",
