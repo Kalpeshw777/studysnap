@@ -6,14 +6,34 @@ const { MongoClient } = require("mongodb");
 const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
+// Request logger
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    if (req.path.startsWith('/api/')) {
+      console.log(`${req.method} ${req.path} ${res.statusCode} ${ms}ms`);
+    }
+  });
+  next();
+});
+
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://noteninja.is-a.dev']
+    ? ['https://noteninja.is-a.dev', 'https://studysnap-tsxk.onrender.com']
     : ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 app.use(express.json({ limit: '10kb' })); // Limit request body size
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), {
+  maxAge: '1d',
+  etag: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Security headers
 app.use((req, res, next) => {
