@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#e63329"/>
 <title>NoteNinja — Free AI Exam Helper | Instant Notes, Q&amp;A &amp; Flashcards</title>
 <meta name="description" content="NoteNinja is a free AI-powered exam helper. Enter any topic and get instant structured notes, practice Q&amp;A, flashcards and MCQs. Powered by Groq AI. 100% free forever. Used by 1000+ Indian students."/>
@@ -568,8 +571,9 @@
   .loading-state.active { display: block; }
   .loader-ring {
     width: 44px; height: 44px; border: 3px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
+    border-top-color: #e63329; border-right-color: #00d4aa; border-radius: 50%;
     animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+    will-change: transform;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: var(--text-muted); }
@@ -653,9 +657,9 @@
   .notes-body { padding: 16px 15px; }
   .definition-box {
     background: rgba(0,229,191,0.05); border: 1px solid rgba(0,229,191,0.15);
-    border-left: 3px solid var(--accent2); border-radius: 8px;
+    border-left: 3px solid var(--accent); border-radius: 8px;
     padding: 11px 13px; margin-bottom: 4px; font-size: 0.85rem; line-height: 1.6;
-    color: var(--text-muted);
+    color: var(--text-muted); word-break: break-word; overflow-wrap: break-word;
   }
   .definition-box strong {
     color: var(--accent2); font-size: 0.7rem; font-family: 'DM Mono', monospace;
@@ -720,7 +724,7 @@
 
   /* ── FLASHCARDS ───────────────────────────────────────── */
   .flashcard-wrap { perspective: 1000px; height: 200px; cursor: pointer; margin-bottom: 16px; }
-  .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s ease; }
+  .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s ease; will-change: transform; }
   .flashcard.flipped { transform: rotateY(180deg); }
   .card-face {
     position: absolute; inset: 0; backface-visibility: hidden;
@@ -1019,10 +1023,10 @@
   .doubt-empty-text { font-size: 0.8rem; font-family: 'DM Mono', monospace; line-height: 1.5; }
 
   /* ── STUDY ROOMS ──────────────────────────────────────── */
-  .room-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 600; display: none; flex-direction: column; animation: fadeIn 0.3s ease; }
+  .room-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 600; display: none; flex-direction: column; animation: fadeIn 0.3s ease; contain: layout style; }
   .room-overlay.active { display: flex; }
   .room-lobby { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .room-lobby-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 36px 32px; max-width: 440px; width: 100%; text-align: center; box-shadow: var(--glow); animation: fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  .room-lobby-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 36px 32px; max-width: 440px; width: 100%; text-align: center; box-shadow: var(--glow); animation: fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1); box-sizing: border-box; }
   .room-lobby-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent2), #00b89c); border-radius: 20px; font-size: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; animation: roomIconPulse 2s ease-in-out infinite; }
   @keyframes roomIconPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(0,229,191,0.4); } 50% { box-shadow: 0 0 0 12px rgba(0,229,191,0); } }
   .room-lobby-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
@@ -1105,6 +1109,7 @@
   .room-mcq-opt.wrong { border-color: var(--accent3); background: rgba(255,107,107,0.1); color: var(--accent3); }
   .room-mcq-opt.disabled { cursor: default; }
   @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  .confetti-piece { will-change: transform, opacity; }
   .confetti-piece { position: fixed; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall linear forwards; pointer-events: none; z-index: 700; }
 
   /* ── SHARE MODAL ─────────────────────────────────────── */
@@ -1277,12 +1282,57 @@
     .doubt-input { font-size: 0.82rem; }
 
     /* ── STUDY ROOMS ── */
-    .room-header { padding: 8px 10px; }
-    .room-code-badge { font-size: 0.7rem; letter-spacing: 1px; padding: 4px 8px; }
-    .room-topic-input-row { flex-direction: column; }
+    .room-overlay { overflow-y: auto; }
+    .room-main { height: 100vh; height: 100dvh; overflow: hidden; flex-direction: column; }
+    .room-header { padding: 8px 10px; flex-wrap: wrap; gap: 6px; }
+    .room-header-left { gap: 6px; min-width: 0; flex: 1; }
+    .room-code-badge { font-size: 0.68rem; letter-spacing: 1px; padding: 4px 8px; }
+    .room-member-count { font-size: 0.62rem; }
+    .room-leave-btn { font-size: 0.68rem; padding: 5px 8px; }
+
+    /* Stack study + sidebar vertically */
+    .room-body { flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+
+    /* Study section: natural height, full width */
+    .room-study {
+      width: 100%; padding: 10px; min-height: unset;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar: full width, fixed height tab panel */
+    .room-sidebar {
+      width: 100%; border-left: none;
+      border-top: 1px solid var(--border);
+      min-height: 320px; max-height: 380px;
+      flex-shrink: 0;
+    }
+
+    /* Chat messages shorter on mobile */
+    .room-chat-messages { min-height: 180px; max-height: 200px; }
+
+    /* Topic input */
+    .room-topic-input-row { flex-direction: column; gap: 6px; }
     .room-study-btn { width: 100%; }
-    .room-chat-input { font-size: 0.78rem; }
+    .room-topic-field { font-size: 0.84rem; }
+
+    /* Battle MCQ 2 cols */
     .room-mcq-opts { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .room-mcq-opt { font-size: 0.76rem; padding: 8px 6px; }
+
+    /* Prevent text overflow in definition */
+    .room-battle-area * { word-break: break-word; overflow-wrap: break-word; }
+
+    /* Leaderboard items */
+    .room-lb-item { padding: 7px 10px; }
+    .room-lb-name { font-size: 0.76rem; }
+
+    /* Reactions */
+    .room-reactions { padding: 5px 6px; gap: 2px; }
+    .reaction-btn { padding: 4px 6px; font-size: 0.82rem; }
+
+    /* Chat input */
+    .room-chat-input { font-size: 0.78rem; }
+    .room-chat-input-row { padding: 6px; gap: 5px; }
 
     /* ── REVISION ── */
     .revision-stats-row { gap: 6px; }
@@ -1304,6 +1354,15 @@
     .brainrot-timer { font-size: 2.6rem; }
     .brainrot-title { font-size: 1.2rem; }
     .brainrot-qcard { padding: 14px; }
+
+    /* ── ROOM LOBBY ── */
+    .room-lobby { padding: 16px; align-items: stretch; }
+    .room-lobby-card { padding: 28px 20px; border-radius: 18px; max-width: 100%; }
+    .room-lobby-title { font-size: 1.3rem; }
+    .room-lobby-sub { font-size: 0.8rem; }
+    .room-join-wrap { flex-direction: column; gap: 6px; }
+    .room-join-btn { width: 100%; }
+    .room-code-input { text-align: center; }
 
     /* ── INSTALL BANNER ── */
     .install-banner { flex-direction: column; align-items: flex-start; padding: 10px 12px; }
@@ -2595,7 +2654,7 @@
   }
   function shareBrainRot() {
     const text='I scored '+brScore+'/10 in Brain Rot Mode on NoteNinja!\nCan you beat me? Try FREE: https://noteninja.is-a.dev';
-    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');
     trackEvent('brain_rot_shared',{score:brScore});
   }
   function closeBrainRot() { clearInterval(brTimer); document.getElementById('brainrotOverlay').classList.remove('active'); }
@@ -3104,7 +3163,7 @@
     }).catch(()=>showToast('Copy failed'));
     trackEvent('share_link_copied');
   }
-  function shareToWhatsApp(){buildShareContent();window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank');trackEvent('share_whatsapp');}
+  function shareToWhatsApp(){buildShareContent();window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank','noopener,noreferrer');trackEvent('share_whatsapp');}
   function shareToTwitter(){buildShareContent();window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('Just studied "'+( document.getElementById('resultTopic')?.textContent||'')+'" on NoteNinja! Free notes+flashcards+MCQ: '+shareUrl),'_blank');trackEvent('share_twitter');}
   function shareToTelegram(){buildShareContent();window.open('https://t.me/share/url?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText),'_blank');trackEvent('share_telegram');}
   async function shareNative(){buildShareContent();if(navigator.share){try{await navigator.share({title:'NoteNinja Notes',text:shareText,url:shareUrl});trackEvent('share_native');}catch(e){}}else copyShareLink();}
