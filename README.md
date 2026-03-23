@@ -1,4 +1,4 @@
-# StudySnap — AI Exam Helper
+# NoteNinja — AI Exam Helper
 
 ## Setup & Deploy 
 
