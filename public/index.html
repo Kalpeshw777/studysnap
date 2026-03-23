@@ -1709,6 +1709,18 @@
     .built-by-link { flex: 1; justify-content: center; }
   }
 
+
+  /* ── ACCESSIBILITY ──────────────────────────────────────────────────────── */
+  .skip-link {
+    position: absolute; top: -100px; left: 16px;
+    background: var(--accent); color: white;
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+    text-decoration: none; z-index: 9999;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 16px; }
+
 </style>
 
 <!-- Google Analytics -->
@@ -1737,6 +1749,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- LOGIN -->
 <canvas id="particleCanvas"></canvas>
@@ -1851,7 +1864,7 @@
 
 <!-- APP -->
 <div class="app-screen" id="appScreen">
-<div class="container">
+<div class="container" id="main-content">
   <header>
     <div class="logo">
       <div class="logo-icon-svg"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
@@ -1894,7 +1907,7 @@
     <div class="install-banner-text"><strong>📱 Install NoteNinja</strong> — Add to your home screen for quick access!</div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="install-btn" onclick="installPWA()">Install App</button>
-      <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+      <button class="install-dismiss" onclick="dismissInstall()" aria-label="Dismiss install banner">✕</button>
     </div>
   </div>
 
@@ -1908,7 +1921,7 @@
     <div class="notif-text"><strong>🔔 Never miss a study day!</strong> Get streak reminders.</div>
     <div style="display:flex;gap:6px;align-items:center;">
       <button class="notif-allow-btn" onclick="enableNotifications()">Enable 🔔</button>
-      <button class="notif-dismiss" onclick="dismissNotif()">✕</button>
+      <button class="notif-dismiss" onclick="dismissNotif()" aria-label="Dismiss notification">✕</button>
     </div>
   </div>
 
@@ -2195,6 +2208,9 @@
     if (ti) ti.textContent = isDark ? '🌙' : '☀️';
     const tl = document.getElementById('themeLabel');
     if (tl) tl.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+    // Update theme-color meta for browser chrome
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', isDark ? '#e63329' : '#f8f5f3');
   }
   function toggleTheme() {
     isDark = !isDark;
@@ -2983,7 +2999,7 @@
     const members=Object.values(roomMembers);
     membersEl.innerHTML=members.slice(0,5).map(m=>{
       const initials=(m.name||'S').charAt(0).toUpperCase();
-      return m.picture?'<img class="room-member-avatar" src="'+m.picture+'" title="'+m.name+'">'
+      return m.picture?'<img class="room-member-avatar" src="'+escapeHtml(m.picture)+'" alt="'+escapeHtml(m.name)+'" title="'+escapeHtml(m.name)+'" loading="lazy">'
         :'<div class="room-member-avatar">'+initials+'</div>';
     }).join('');
     if(countEl) countEl.textContent=members.length+' studying';
@@ -2999,7 +3015,7 @@
       const score=roomScores[m.email]||0;
       const isMe=m.email===currentUser?.email;
       const initials=(m.name||'S').charAt(0).toUpperCase();
-      const avatar=m.picture?'<img class="room-lb-avatar" src="'+m.picture+'">':'<div class="room-lb-avatar">'+initials+'</div>';
+      const avatar=m.picture?'<img class="room-lb-avatar" src="'+escapeHtml(m.picture)+'" alt="'+escapeHtml(m.name)+'" loading="lazy">':'<div class="room-lb-avatar">'+initials+'</div>';
       return '<div class="room-lb-item'+(isMe?' me':'')+'">'+
         '<div class="room-lb-rank">'+(i<3?medals[i]:i+1)+'</div>'+avatar+
         '<div class="room-lb-name">'+m.name+(isMe?' (you)':'')+'</div>'+
@@ -3946,16 +3962,16 @@
         <div id="roomPanelScores" class="room-panel active"><div class="room-leaderboard" id="roomLeaderboard"></div></div>
         <div id="roomPanelChat" class="room-panel" style="display:none"><div class="room-chat-messages" id="roomChatMessages"></div></div>
         <div class="room-reactions">
-          <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
-          <button class="reaction-btn" onclick="sendReaction('💀')">💀</button>
-          <button class="reaction-btn" onclick="sendReaction('😭')">😭</button>
-          <button class="reaction-btn" onclick="sendReaction('🏆')">🏆</button>
-          <button class="reaction-btn" onclick="sendReaction('🤯')">🤯</button>
-          <button class="reaction-btn" onclick="sendReaction('👏')">👏</button>
+          <button class="reaction-btn" onclick="sendReaction('🔥')" aria-label="Send fire reaction">🔥</button>
+          <button class="reaction-btn" onclick="sendReaction('💀')" aria-label="Send skull reaction">💀</button>
+          <button class="reaction-btn" onclick="sendReaction('😭')" aria-label="Send crying reaction">😭</button>
+          <button class="reaction-btn" onclick="sendReaction('🏆')" aria-label="Send trophy reaction">🏆</button>
+          <button class="reaction-btn" onclick="sendReaction('🤯')" aria-label="Send mind-blown reaction">🤯</button>
+          <button class="reaction-btn" onclick="sendReaction('👏')" aria-label="Send clap reaction">👏</button>
         </div>
         <div class="room-chat-input-row">
           <input class="room-chat-input" id="roomChatInput" type="text" placeholder="Type a message..." maxlength="200" autocomplete="off" autocorrect="off" autocapitalize="off"/>
-          <button class="room-chat-send" onclick="sendRoomMessage()">➤</button>
+          <button class="room-chat-send" onclick="sendRoomMessage()" aria-label="Send message">➤</button>
         </div>
       </div>
     </div>
@@ -3990,7 +4006,7 @@
   <div class="feedback-panel">
     <div class="feedback-header">
       <div class="feedback-title">💬 Share Your Feedback</div>
-      <button class="feedback-close" onclick="closeFeedback()">✕</button>
+      <button class="feedback-close" onclick="closeFeedback()" aria-label="Close feedback">✕</button>
     </div>
     <div id="feedbackForm">
       <div class="feedback-types">
