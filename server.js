@@ -8,7 +8,7 @@ const { OAuth2Client } = require("google-auth-library");
 const app = express();
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://studysnap-tsxk.onrender.com']
+    ? ['https://noteninja.is-a.dev']
     : ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
@@ -406,7 +406,7 @@ app.use((req, res) => {
 
 // ── GRACEFUL SHUTDOWN ─────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => console.log(`StudySnap running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`NoteNinja running on port ${PORT}`));
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully...');
