@@ -2237,6 +2237,22 @@
       .replace(/'/g, '&#x27;');
   }
 
+  // safeHtml: for AI content that contains safe formatting tags like <strong>, <em>
+  // Escapes everything first, then restores only whitelisted tags
+  function safeHtml(str) {
+    if (typeof str !== 'string') return String(str || '');
+    return escapeHtml(str)
+      .replace(/&lt;strong&gt;/g, '<strong>')
+      .replace(/&lt;\/strong&gt;/g, '</strong>')
+      .replace(/&lt;em&gt;/g, '<em>')
+      .replace(/&lt;\/em&gt;/g, '</em>')
+      .replace(/&lt;b&gt;/g, '<b>')
+      .replace(/&lt;\/b&gt;/g, '</b>')
+      .replace(/&lt;i&gt;/g, '<i>')
+      .replace(/&lt;\/i&gt;/g, '</i>')
+      .replace(/&lt;br\s*\/?&gt;/g, '<br/>');
+  }
+
   async function init() {
     if (authToken) {
       try {
@@ -2546,26 +2562,26 @@
     document.getElementById('statQA').textContent = data.qa?.length || 0;
     document.getElementById('statCards').textContent = data.qa?.length || 0;
     const def = document.getElementById('definitionText');
-    if (def) def.textContent = data.definition;
+    if (def) def.innerHTML = safeHtml(data.definition || '');
     document.getElementById('keyPointsList').innerHTML = (data.points || []).map((p, i) => `
       <li class="key-point" style="animation-delay:${i*0.05}s">
         <div class="point-num">${String(i+1).padStart(2,'0')}</div>
-        <div class="point-text"><strong>${escapeHtml(p.title)}:</strong> ${escapeHtml(p.text)}</div>
+        <div class="point-text"><strong>${escapeHtml(p.title)}:</strong> ${safeHtml(p.text)}</div>
       </li>`).join('');
     const fc = document.getElementById('formulaCard');
     if (data.formulas?.length) {
       fc.style.display = 'block';
-      document.getElementById('formulaBody').innerHTML = data.formulas.map(f => `<div class="formula-box"><span style="color:var(--text-dim);font-size:0.68rem;margin-right:4px">▶</span>${f}</div>`).join('');
+      document.getElementById('formulaBody').innerHTML = data.formulas.map(f => `<div class="formula-box"><span style="color:var(--text-dim);font-size:0.68rem;margin-right:4px">▶</span>${safeHtml(String(f))}</div>`).join('');
     } else { fc.style.display = 'none'; }
     document.getElementById('qaList').innerHTML = (data.qa || []).map((item, i) => `
       <div class="qa-item" onclick="toggleQA(this)">
         <div class="qa-question">
           <div class="qa-q-badge">Q${i+1}</div>
-          <span>${escapeHtml(item.q)}</span>
+          <span>${safeHtml(item.q)}</span>
           <span class="difficulty-badge diff-${item.diff}">${item.diff}</span>
           <span class="qa-toggle">▼</span>
         </div>
-        <div class="qa-answer">${escapeHtml(item.a)}</div>
+        <div class="qa-answer">${safeHtml(item.a)}</div>
       </div>`).join('');
     currentCards = data.qa || [];
     currentCardIdx = 0; cardFlipped = false;
@@ -2909,7 +2925,7 @@
     div.className='doubt-msg '+role;
     const avatar=role==='ai'?'🤖':'👤';
     const avatarClass=role==='ai'?'ai':'user';
-    div.innerHTML='<div class="msg-avatar '+avatarClass+'">'+avatar+'</div><div class="msg-bubble">'+escapeHtml(text).replace(/\n/g,'<br/>')+'</div>';
+    div.innerHTML='<div class="msg-avatar '+avatarClass+'">'+avatar+'</div><div class="msg-bubble">'+safeHtml(text).replace(/\n/g,'<br/>')+'</div>';
     msgs.appendChild(div);
     msgs.scrollTop=msgs.scrollHeight;
   }
