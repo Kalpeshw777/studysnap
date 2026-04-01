@@ -39,8 +39,11 @@ app.use(express.static(path.join(__dirname, "public"), {
   }
 }));
 
-// Security headers
+// Security headers (applied to all routes EXCEPT SEO files)
 app.use((req, res, next) => {
+  // Skip strict headers for SEO/crawler files — Google needs clean responses
+  const seoRoutes = ['/sitemap.xml', '/robots.txt', '/ads.txt'];
+  if (seoRoutes.includes(req.path)) return next();
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -417,17 +420,7 @@ app.get("/api/feedback/all", authMiddleware, async (req, res) => {
   }
 });
 
-// ── SEO: robots.txt ───────────────────────────────────────────────────────────
-app.get('/robots.txt', (req, res) => {
-  res.type('text/plain');
-  res.send(
-`User-agent: *
-Allow: /
-Disallow: /api/
-
-Sitemap: https://noteninja.online/sitemap.xml`
-  );
-});
+// NOTE: robots.txt and ads.txt are static files in public/ — more reliable for crawlers.
 
 // ── SEO: sitemap.xml ──────────────────────────────────────────────────────────
 app.get('/sitemap.xml', (req, res) => {
@@ -461,11 +454,7 @@ app.get('/sitemap.xml', (req, res) => {
   res.status(200).end(xml);
 });
 
-// ── ADSENSE: ads.txt (required for AdSense revenue) ──────────────────────────
-app.get('/ads.txt', (req, res) => {
-  res.type('text/plain');
-  res.send('google.com, pub-6423436827122681, DIRECT, f08c47fec0942fa0');
-});
+// NOTE: ads.txt is a static file in public/ads.txt
 
 // ── PRIVACY POLICY ────────────────────────────────────────────────────────────
 app.get('/privacy-policy', (req, res) => {
